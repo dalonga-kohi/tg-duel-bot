@@ -1,13 +1,45 @@
+import redis
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, Application
-from config import CMD_DUEL, REPLY_DUEL, REPLY_HELP, TOKEN, BOT_USERNAME, CMD_START, CMD_HELP, REPLY_START
+from telegram.ext import ContextTypes
+from config import R_HOST, R_PORT, REPLY_CANCEL, REPLY_DUEL, REPLY_STATUS, REPLY_START
+import random
+
+r = redis.Redis(host=R_HOST, port=R_PORT, db=0)
 
 async def handle_cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(REPLY_START)
-    await update.message.reply_photo('https://picsum.photos/200')
 
 async def handle_cmd_duel(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(REPLY_DUEL)
+    user_id = update.message.from_user.id
+    game_id = r.get(f'user-{user_id}')
+    print(f'New duel by user {user_id}')
+    if not game_id:
+        await update.message.reply_text(REPLY_DUEL)
+        id = create_game_id()
+        r.set(f'user-{user_id}', id)
+        r.set(id, 'SETTING')
+    else:
+        await update.message.reply_text('Sorry 😓, you are already in a game.')
 
-async def handle_cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(REPLY_HELP)
+
+async def handle_cmd_cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(REPLY_CANCEL)
+
+async def handle_cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(REPLY_STATUS)
+
+async def handle_cmd_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(REPLY_STATUS)
+
+def create_game_id() -> str:
+    while True:
+        id = random.randint(1234,9999999)
+        id = f'game-{id}'
+        game = r.get(id)
+
+        print('creating new game')
+
+        if not game:
+            return id
+        else:
+            continue
