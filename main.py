@@ -1,11 +1,23 @@
-from telegram import Update
-from telegram.ext import CommandHandler, ContextTypes, Application, MessageHandler, filters
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import CommandHandler, ContextTypes, Application, MessageHandler, filters, CallbackQueryHandler
 from commands import handle_cmd_duel, handle_cmd_join, handle_cmd_start, handle_cmd_cancel, handle_cmd_status
-from config import CMD_DUEL, R_HOST, R_PORT, REPLY_NO_GAME, REPLY_WRONG_STAKE, TOKEN, CMD_START, CMD_CANCEL, CMD_JOIN, CMD_STATUS
+from config import CMD_DUEL, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, REPLY_NO_GAME, REPLY_NO_JOIN, REPLY_WRONG_STAKE, TOKEN, CMD_START, CMD_CANCEL, CMD_JOIN, CMD_STATUS
 import redis
 import mysql.connector
+import random
+from solders.keypair import Keypair # type: ignore
+from solana.rpc.api import Client
+from cb import button
 
-r = redis.Redis(host=R_HOST, port=R_PORT, db=0)
+bombo_token_mint = "D3pmeo4MrV2eWMJH3WybR4fnKdMiSS4DrYHqdYNNjQU5"
+sol_client = Client("https://api.mainnet-beta.solana.com")
+r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
+mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+)
 
 async def handle_error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'Update {update} caused an error: \n {context.error}')
@@ -13,31 +25,131 @@ async def handle_error(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     proc: str = update.message.text.lower().strip()
     user_id = update.message.from_user.id
-    game_id = r.get(f'user-{user_id}')
+    type = update.message.chat.type
     stake = 0
-    status = r.get(game_id)
-    status = str(status)
-    print(f'User {user_id} sends a message\nGame: {game_id}' )
+    print(f'User {user_id} sends a message({type})' )
+
+
+    if type != 'private':
+        return
+
+    if not r.get(user_id):
+        await update.message.reply_text(REPLY_NO_GAME)
+        return
+
+    status = r.get(user_id)
     print(f'status: {status}')
+
+
+
+    ###########################################
+    ###########################################
+    ###########################################
+
     if status == 'SETTING':
+        keyboard = [
+            [InlineKeyboardButton("❌ Cancel Challenge", callback_data=f'abandon-{user_id}')],
+        ]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
         try:
             stake = int(proc)
             print(f'Stake: {stake}')
         except:
-            await update.message.reply_text(REPLY_WRONG_STAKE)
+            await update.message.reply_text(REPLY_WRONG_STAKE ,reply_markup=reply_markup)
             return
+        keypair = Keypair()
 
-        r.set(game_id, 'JOINING')
-        game_id = game_id.split('-')
-        await update.message.reply_text(f'Nice, Your game id is:\n <code>{game_id[1]}</code>\nYou can share it with your frens and wait for the start😊\nCheck status of your game with /status')
+        public_key = keypair.pubkey()
+
+        private_key = keypair.secret()
+        print(f"Public Key: {public_key}")
+        print(f"Private Key: {private_key.hex()}")
+
+        keyboard = [
+            [
+                InlineKeyboardButton("💷 Confirm Deposit", callback_data=f'confirm-{user_id}'),
+                InlineKeyboardButton("❌ Cancel Challenge", callback_data=f'abandon-{user_id}')
+            ],
+        ]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo create the challenge send {stake} $BOMBO to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', reply_markup=reply_markup, parse_mode='HTML')
+        r.set(user_id, f'WITHDRAW#{public_key}-{private_key.hex()}')
         return
 
-    # if not game_id:
-    #     await update.message.reply_text(REPLY_NO_GAME)
-    #     return
+    if 'WITHDRAW#' in status:
+
+        game_id = create_game_id()
+        wallet = status.split('#')
+        wallet = wallet[1]
+        mycursor = mydb.cursor()
+        sql = "INSERT INTO games (game_id, p1, wallet, status, stake) VALUES (%s, %s, %s, %s, %s)"
+        val = (game_id, user_id, wallet, 0, stake)
+        mycursor.execute(sql, val)
+
+        mydb.commit()
+
+        keyboard = [
+            [
+                InlineKeyboardButton("👀 Check Status", callback_data=f'status-{game_id}'),
+                InlineKeyboardButton("👤 My Account", callback_data=f'account-{user_id}'),
+            ],
+            [
+                InlineKeyboardButton("📜 Read Rules of the Game", callback_data=f'rules'),
+                InlineKeyboardButton("❌ Cancel Challenge", callback_data=f'cancel-{game_id}')
+            ],
+        ]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        await update.message.reply_text(f'✅ <strong>Success!</strong>\n\n Your game id is: <code class="monospace-text">{game_id}</code>\n\nYou can share it with your frens and wait for the start', reply_markup=reply_markup, parse_mode='HTML')
+        r.delete(user_id)
+        return
+
+    if status == 'JOINING':
+        try:
+            game_id = int(proc)
+            print(f'GAME ID: {game_id}')
+        except:
+            keyboard = [
+                [InlineKeyboardButton("❌ Stop Joining", callback_data=f'stopj-{user_id}')]
+            ]
+
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await update.message.reply_text(REPLY_WRONG_STAKE, reply_markup=reply_markup, parse_mode='HTML')
+            return
+
+        mycursor = mydb.cursor()
+
+        mycursor.execute(f"SELECT p1,p2,p3,p4,p5 FROM games WHERE game_id={game_id}")
+        myresult = mycursor.fetchall()
+
+        if not myresult:
+            r.delete(user_id)
+            await update.message.reply_text(REPLY_NO_JOIN, parse_mode='HTML')
+            return
+        #TODO
+        r.delete(user_id)
+        return
 
 
+def create_game_id() -> str:
+    mycursor = mydb.cursor()
 
+    mycursor.execute("SELECT game_id FROM games")
+
+    myresult = mycursor.fetchall()
+    while True:
+        id = random.randint(1234,9999999)
+
+        print('creating new game')
+
+        if id not in myresult:
+            return f'{id}'
+        else:
+            continue
 
 if __name__ == '__main__':
     app = Application.builder().token(TOKEN).build()
@@ -48,7 +160,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler(CMD_JOIN, handle_cmd_join))
 
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
-
+    app.add_handler(CallbackQueryHandler(button))
     app.add_error_handler(handle_error)
 
     print('Polling...')

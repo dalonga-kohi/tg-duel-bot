@@ -5,7 +5,7 @@ BOT_USERNAME = '@TestoDueloBot'
 R_HOST='localhost'
 R_PORT=6379
 MYSQL_HOST='localhost'
-MYSQL_PORT=3306
+MYSQL_DB='duel_test'
 MYSQL_USER='root'
 MYSQL_PASS=''
 
@@ -16,8 +16,10 @@ CMD_STATUS = 'status'
 CMD_CANCEL = 'cancel'
 
 REPLY_START = "Howdy! I'm the Duel Bot 🤖⚔️. To begin just select one of the commands or type /info for further info 😘"
-REPLY_DUEL = 'Please provide the stake of the duel 🪙'
+REPLY_DUEL = 'Please provide the stake of the challenege in $BOMBO'
 REPLY_CANCEL = '⛑️'
 REPLY_STATUS = 'Status'
-REPLY_NO_GAME = 'You can create a new game with /duel. You can also type /info to learn more about the game 🕹️'
-REPLY_WRONG_STAKE = '❌ Provided stake value is invalid ❌\n Make sure it is a plain number🔢'
+REPLY_JOIN = 'To join type the id of the challenge ⚔️'
+REPLY_NO_JOIN = '❌ Not even a single challenge with the id provided 🙈.\nTry again'
+REPLY_NO_GAME = 'You can create a new game with /duel or join with /join. You can also type /info to learn more about the game 🕹️'
+REPLY_WRONG_STAKE = '🚨 Provided value is invalid \n Make sure it is a plain number 🔢'
