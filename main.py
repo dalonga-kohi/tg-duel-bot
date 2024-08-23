@@ -72,25 +72,25 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         val = (game_id, user_id, 9, stake)
         mycursor.execute(sql, val)
         sql = "INSERT INTO wallets (user_id, game_id, pub_key, priv_key) VALUES (%s, %s, %s, %s)"
-        val = (user_id, game_id, public_key, private_key.hex())
+        val = (user_id, game_id, f'{public_key}', f'{private_key.hex()}')
         mycursor.execute(sql, val)
-
         mydb.commit()
 
         keyboard = [
             [
-                InlineKeyboardButton("💸 Confirm Deposit", callback_data=f'confirm-create'),
-                InlineKeyboardButton("❌ Cancel Challenge", callback_data=f'abandon-{user_id}')
+                InlineKeyboardButton("💸 Confirm Deposit", callback_data=f'confirm-create-{game_id}'),
+                InlineKeyboardButton("❌ Cancel Challenge", callback_data=f'abandon-{game_id}')
             ],
         ]
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo create the challenge send {stake} $BOMBO to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', reply_markup=reply_markup, parse_mode='HTML')
-        r.set(user_id, f'WITHDRAW')
+        r.set(user_id, f'WD-START')
         return
 
-    if 'WITHDRAW' in status:
+    if status == 'WD-START':
+        game_id = 2
         keyboard = [
             [
                 InlineKeyboardButton("👀 Check Status", callback_data=f'status-{game_id}'),
@@ -99,9 +99,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [
                 InlineKeyboardButton("📜 Read Rules of the Game", callback_data=f'rules'),
                 InlineKeyboardButton("⚔️ My Challenges", callback_data=f'games'),
-            ],
-            [
-                InlineKeyboardButton("❌ Cancel Challenge", callback_data=f'cancel-{game_id}')
             ]
         ]
 
@@ -130,6 +127,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         myresult = mycursor.fetchall()
 
         if not myresult:
+            keyboard = [
+                [InlineKeyboardButton("❌ Stop Joining", callback_data=f'stopj-{user_id}')]
+            ]
+
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await update.message.reply_text(REPLY_NO_JOIN, parse_mode='HTML', reply_markup=reply_markup)
+            return
+        if not myresult[0][5] == 9:
             keyboard = [
                 [InlineKeyboardButton("❌ Stop Joining", callback_data=f'stopj-{user_id}')]
             ]
@@ -229,10 +234,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print(f"Private Key: {private_key.hex()}")
 
         mycursor = mydb.cursor()
-        sql = f"UPDATE games SET p{p_index})='{user_id}'"
+        sql = f"UPDATE games SET p{p_index}='{user_id}' WHERE game_id='{game_id}'"
         mycursor.execute(sql)
         sql = "INSERT INTO wallets (user_id, game_id, pub_key, priv_key) VALUES (%s, %s, %s, %s)"
-        val = (user_id, game_id, public_key, private_key.hex())
+        val = (user_id, game_id, f'{public_key}', private_key.hex())
         mycursor.execute(sql, val)
 
         mydb.commit()
