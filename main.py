@@ -8,6 +8,7 @@ import random
 from solders.keypair import Keypair # type: ignore
 from solana.rpc.api import Client
 from cb import button
+from timer import countdown, delete_countdown
 
 sol_client = Client("https://api.mainnet-beta.solana.com")
 r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
@@ -20,6 +21,40 @@ mydb = mysql.connector.connect(
 
 async def handle_error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'Update {update} caused an error: \n {context.error}')
+
+async def deposit_cancel(user_id):
+    print(f'User {user_id} did not pay the deposit in time')
+
+async def verify_player_amount(game_id):
+    mycursor = mydb.cursor()
+    mycursor.execute(f"SELECT p1,p2,p3,p4,p5 FROM games WHERE game_id={game_id}")
+    myresult = mycursor.fetchall()
+
+    player_amount = 0
+
+    for x in myresult[:5]:
+        try:
+            if int(x) != 0:
+                player_amount += 1
+        except:
+            pass
+
+    return player_amount
+
+async def game_full(game_id):
+    players = verify_player_amount(game_id)
+    if players == 5:
+        game_start(game_id)
+
+async def game_start(game_id):
+    print("start")
+
+async def start_enough_players(game_id):
+    players = verify_player_amount(game_id)
+    if players >= 2:
+        game_start(game_id)
+    else:
+        return
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     proc: str = update.message.text.lower().strip()
@@ -85,7 +120,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo create the challenge send <b>{stake} $BOMBO</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', reply_markup=reply_markup, parse_mode='HTML')
-        r.set(user_id, f"DEPOSIT")
         return
 
     if status == 'JOINING':
@@ -120,6 +154,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ]
 
             reply_markup = InlineKeyboardMarkup(keyboard)
+
+            countdown(5 * 60, f"join-{id}", game_full, start_enough_players)
+
             await update.message.reply_text(REPLY_NO_JOIN, parse_mode='HTML', reply_markup=reply_markup)
             return
         myresult = myresult[0]
@@ -250,4 +287,5 @@ if __name__ == '__main__':
     app.add_error_handler(handle_error)
 
     print('Polling...')
+
     app.run_polling(poll_interval=2)
