@@ -1,7 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CommandHandler, ContextTypes, Application, MessageHandler, filters, CallbackQueryHandler
 from commands import handle_cmd_duel, handle_cmd_join, handle_cmd_start, handle_cmd_cancel, handle_cmd_status
-from config import CMD_DUEL, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, REPLY_ALREADY_WD, REPLY_NO_FREE, REPLY_NO_GAME, REPLY_NO_JOIN, REPLY_WRONG_STAKE, TOKEN, CMD_START, CMD_CANCEL, CMD_JOIN, CMD_STATUS
+from config import CMD_DUEL, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, REPLY_NO_FREE, REPLY_NO_GAME, REPLY_NO_JOIN, REPLY_WRONG_STAKE, TOKEN, CMD_START, CMD_CANCEL, CMD_JOIN, CMD_STATUS
 import redis
 import mysql.connector
 import random
@@ -9,7 +9,6 @@ from solders.keypair import Keypair # type: ignore
 from solana.rpc.api import Client
 from cb import button
 
-bombo_token_mint = "D3pmeo4MrV2eWMJH3WybR4fnKdMiSS4DrYHqdYNNjQU5"
 sol_client = Client("https://api.mainnet-beta.solana.com")
 r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
 mydb = mysql.connector.connect(
@@ -85,27 +84,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo create the challenge send {stake} $BOMBO to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', reply_markup=reply_markup, parse_mode='HTML')
-        r.set(user_id, f'WD-START')
-        return
-
-    if status == 'WD-START':
-        game_id = 2
-        keyboard = [
-            [
-                InlineKeyboardButton("👀 Check Status", callback_data=f'status-{game_id}'),
-                InlineKeyboardButton("👤 My Account", callback_data=f'account-{user_id}'),
-            ],
-            [
-                InlineKeyboardButton("📜 Read Rules of the Game", callback_data=f'rules'),
-                InlineKeyboardButton("⚔️ My Challenges", callback_data=f'games'),
-            ]
-        ]
-
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
-        await update.message.reply_text(f'✅ <strong>Success!</strong>\n\n Your game id is: <code class="monospace-text">{game_id}</code>\n\nYou can share it with your frens and wait for the start', reply_markup=reply_markup, parse_mode='HTML')
-        r.delete(user_id)
+        await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo create the challenge send <b>{stake} $BOMBO</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', reply_markup=reply_markup, parse_mode='HTML')
+        r.set(user_id, f"DEPOSIT")
         return
 
     if status == 'JOINING':
@@ -114,7 +94,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print(f'GAME ID: {game_id}')
         except:
             keyboard = [
-                [InlineKeyboardButton("❌ Stop Joining", callback_data=f'stopj-{user_id}')]
+                [InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-{user_id}')]
             ]
 
             reply_markup = InlineKeyboardMarkup(keyboard)
@@ -128,7 +108,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         if not myresult:
             keyboard = [
-                [InlineKeyboardButton("❌ Stop Joining", callback_data=f'stopj-{user_id}')]
+                [InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-{user_id}')]
             ]
 
             reply_markup = InlineKeyboardMarkup(keyboard)
@@ -136,7 +116,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         if not myresult[0][5] == 9:
             keyboard = [
-                [InlineKeyboardButton("❌ Stop Joining", callback_data=f'stopj-{user_id}')]
+                [InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-{user_id}')]
             ]
 
             reply_markup = InlineKeyboardMarkup(keyboard)
@@ -192,21 +172,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             r.delete(user_id)
             return
 
-        # if myresult[5] == 2:
-        #     keyboard = [
-        #         [
-        #             InlineKeyboardButton("Try Again", callback_data=f'again-{game_id}'),
-        #             InlineKeyboardButton("👀 Check Status", callback_data=f'status-{game_id}'),
-        #         ],
-        #         [
-        #             InlineKeyboardButton("🆕 Create new Challenge", callback_data=f'create-{user_id}')
-        #         ]
-        #     ]
-        #     reply_markup = InlineKeyboardMarkup(keyboard)
-        #     r.delete(user_id)
-        #     await update.message.reply_text(REPLY_ALREADY_WD, parse_mode='HTML', reply_markup=reply_markup)
-        #     return
-
         if myresult[5] == 2:
             keyboard = [
                 [
@@ -244,7 +209,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = [
             [
                 InlineKeyboardButton("💸 Confirm Deposit", callback_data=f'confirm-{game_id}'),
-                InlineKeyboardButton("❌ Quit", callback_data=f'quit-{game_id}')
+                InlineKeyboardButton("❌ Cancel", callback_data=f'quit-{game_id}')
             ],
         ]
 
@@ -252,7 +217,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo join send {myresult[6]} $BOMBO to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.\n\n You have 4 minutes to confirm the deposit.', reply_markup=reply_markup, parse_mode='HTML')
 
-        r.set(user_id, "WD")
+        r.set(user_id, "DEPOSIT")
         return
 
 
