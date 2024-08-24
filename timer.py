@@ -1,54 +1,28 @@
-import time
-import redis
-import threading
-from config import R_HOST, R_PORT
+from telegram import Update
+from telegram.ext import ContextTypes
+from datetime import datetime, timedelta
 
+async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
+    job = context.job
+    await context.bot.send_message(job.chat_id, text=f"Beep! {job.data} seconds are over!")
 
-r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
+def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
+    current_jobs = context.job_queue.get_jobs_by_name(name)
+    if not current_jobs:
+        return False
+    for job in current_jobs:
+        job.schedule_removal()
+    return True
 
-active_timers = {}
+async def set_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, due: int, text: str) -> None:
+    chat_id = update.effective_message.chat_id
 
-def set_timer(seconds, key):
-    r.set(key, seconds)
+    if due < 0:
+        await update.effective_message.reply_text("Sorry we cannot go back to the future!")
+        return
 
-def countdown(seconds, key, step=None, next=None):
-    set_timer(seconds, key)
-    
-    def decrement_time():
-        remaining_time = r.get(key)
-        if remaining_time:
-            remaining_time = int(remaining_time)
-            
-            if remaining_time > 0:
-                r.decr(key)
-                
-                if step:
-                    step()
-                
-                active_timers[key] = threading.Timer(1, decrement_time)
-                active_timers[key].start()
-            else:
-                if next:
-                    next()
-                
-                r.delete(key)
-                if key in active_timers:
-                    del active_timers[key]
-        else:
-            print("No timer set.")
-    
-    decrement_time()
+    job_removed = remove_job_if_exists(str(chat_id), context)
 
-def delete_countdown(key):
-    if r.exists(key):
-        r.delete(key)
-        print(f"Timer '{key}' deleted from Redis.")
-    else:
-        print(f"No timer with key '{key}' found in Redis.")
-    
-    if key in active_timers:
-        active_timers[key].cancel()
-        del active_timers[key]
-        print(f"Active timer '{key}' stopped.")
-    else:
-        print(f"No active timer for key '{key}'.")
+    context.job_queue.run_once(alarm, due, chat_id=chat_id, name=str(chat_id), data=due)
+
+    await update.effective_message.reply_text(text)
