@@ -41,13 +41,39 @@ async def verify_player_amount(game_id):
 
     return player_amount
 
+async def verify_creator_deposit(game_id, player_id, timer_key):
+    delete_countdown(timer_key)
+    game_start()
+
+async def verify_joiner_deposit(game_id, player_id, timer_key):
+    delete_countdown(timer_key)
+
 async def game_full(game_id):
     players = verify_player_amount(game_id)
     if players == 5:
-        game_start(game_id)
+        game_start_full(game_id)
 
-async def game_start(game_id):
-    print("start")
+async def game_start_join(game_id):
+    try:
+        mycursor = mydb.cursor()
+        mycursor.execute("UPDATE SET status=%s WHERE game_id=%s")
+        val = (1, game_id)
+        mycursor.execute(sql, val)
+        mydb.commit()
+    except:
+        print(f"Cannot confirm game {game_id}")
+        return
+
+async def game_start_full(game_id):
+    try:
+        mycursor = mydb.cursor()
+        mycursor.execute("UPDATE SET status=%s WHERE game_id=%s")
+        val = (2, game_id)
+        mycursor.execute(sql, val)
+        mydb.commit()
+    except:
+        print(f"Cannot start game {game_id}")
+        return
 
 async def start_enough_players(game_id):
     players = verify_player_amount(game_id)
@@ -120,6 +146,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo create the challenge send <b>{stake} $BOMBO</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', reply_markup=reply_markup, parse_mode='HTML')
+
+        countdown_key = f"creator-deposit-{game_id}"
+        countdown(4 * 60, countdown_key, verify_creator_deposit(game_id, player_id, countdown_key))
+
         return
 
     if status == 'JOINING':
