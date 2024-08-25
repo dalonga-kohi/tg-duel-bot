@@ -5,10 +5,10 @@ from config import CMD_DUEL, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOS
 import redis
 import mysql.connector
 import random
-from solders.keypair import Keypair # type: ignore
+from solders.keypair import Keypair  # type: ignore
 from solana.rpc.api import Client
 from cb import button
-from timer import countdown, delete_countdown
+from timer import set_timer, remove_job_if_exists
 
 sol_client = Client("https://api.mainnet-beta.solana.com")
 r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
@@ -22,73 +22,12 @@ mydb = mysql.connector.connect(
 async def handle_error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'Update {update} caused an error: \n {context.error}')
 
-async def deposit_cancel(user_id):
-    print(f'User {user_id} did not pay the deposit in time')
-
-async def verify_player_amount(game_id):
-    mycursor = mydb.cursor()
-    mycursor.execute(f"SELECT p1,p2,p3,p4,p5 FROM games WHERE game_id={game_id}")
-    myresult = mycursor.fetchall()
-
-    player_amount = 0
-
-    for x in myresult[:5]:
-        try:
-            if int(x) != 0:
-                player_amount += 1
-        except:
-            pass
-
-    return player_amount
-
-async def verify_creator_deposit(game_id, player_id, timer_key):
-    delete_countdown(timer_key)
-    game_start()
-
-async def verify_joiner_deposit(game_id, player_id, timer_key):
-    delete_countdown(timer_key)
-
-async def game_full(game_id):
-    players = verify_player_amount(game_id)
-    if players == 5:
-        game_start_full(game_id)
-
-async def game_start_join(game_id):
-    try:
-        mycursor = mydb.cursor()
-        mycursor.execute("UPDATE SET status=%s WHERE game_id=%s")
-        val = (1, game_id)
-        mycursor.execute(sql, val)
-        mydb.commit()
-    except:
-        print(f"Cannot confirm game {game_id}")
-        return
-
-async def game_start_full(game_id):
-    try:
-        mycursor = mydb.cursor()
-        mycursor.execute("UPDATE SET status=%s WHERE game_id=%s")
-        val = (2, game_id)
-        mycursor.execute(sql, val)
-        mydb.commit()
-    except:
-        print(f"Cannot start game {game_id}")
-        return
-
-async def start_enough_players(game_id):
-    players = verify_player_amount(game_id)
-    if players >= 2:
-        game_start(game_id)
-    else:
-        return
-
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     proc: str = update.message.text.lower().strip()
     user_id = update.message.from_user.id
     type = update.message.chat.type
     stake = 0
-    print(f'User {user_id} sends a message({type})' )
-
+    print(f'User {user_id} sends a message({type})')
 
     if type != 'private':
         return
@@ -100,12 +39,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     status = r.get(user_id)
     print(f'status: {status}')
 
-
-
-    ###########################################
-    ###########################################
-    ###########################################
-
     if status == 'SETTING':
         keyboard = [
             [InlineKeyboardButton("❌ Cancel Challenge", callback_data=f'abandon-{user_id}')],
@@ -116,21 +49,20 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             stake = int(proc)
             print(f'Stake: {stake}')
         except:
-            await update.message.reply_text(REPLY_WRONG_STAKE ,reply_markup=reply_markup)
+            await update.message.reply_text(REPLY_WRONG_STAKE, reply_markup=reply_markup)
             return
+
         keypair = Keypair()
         game_id = create_game_id()
 
         public_key = keypair.pubkey()
-
         private_key = keypair.secret()
-        print(f"Public Key: {public_key}")
-        print(f"Private Key: {private_key.hex()}")
 
         mycursor = mydb.cursor()
         sql = "INSERT INTO games (game_id, p1, status, stake) VALUES (%s, %s, %s, %s)"
         val = (game_id, user_id, 9, stake)
         mycursor.execute(sql, val)
+
         sql = "INSERT INTO wallets (user_id, game_id, pub_key, priv_key) VALUES (%s, %s, %s, %s)"
         val = (user_id, game_id, f'{public_key}', f'{private_key.hex()}')
         mycursor.execute(sql, val)
@@ -145,10 +77,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo create the challenge send <b>{stake} $BOMBO</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', reply_markup=reply_markup, parse_mode='HTML')
-
-        countdown_key = f"creator-deposit-{game_id}"
-        countdown(4 * 60, countdown_key, verify_creator_deposit(game_id, player_id, countdown_key))
+        await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\nTo create the challenge send <b>{stake} $BOMBO</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', reply_markup=reply_markup, parse_mode='HTML')
+        r.set(user_id, "DEPOSIT")
 
         return
 
@@ -166,7 +96,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
 
         mycursor = mydb.cursor()
-
         mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status,stake FROM games WHERE game_id={game_id}")
         myresult = mycursor.fetchall()
 
@@ -174,98 +103,43 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             keyboard = [
                 [InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-{user_id}')]
             ]
-
             reply_markup = InlineKeyboardMarkup(keyboard)
-            await update.message.reply_text(REPLY_NO_JOIN, parse_mode='HTML', reply_markup=reply_markup)
+            await update.message.reply_text(REPLY_NO_JOIN, reply_markup=reply_markup)
             return
+
         if not myresult[0][5] == 9:
             keyboard = [
                 [InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-{user_id}')]
             ]
-
             reply_markup = InlineKeyboardMarkup(keyboard)
-
-            countdown(5 * 60, f"join-{id}", game_full, start_enough_players)
-
-            await update.message.reply_text(REPLY_NO_JOIN, parse_mode='HTML', reply_markup=reply_markup)
+            await update.message.reply_text(REPLY_NO_JOIN, reply_markup=reply_markup)
             return
+
         myresult = myresult[0]
-        print(myresult)
 
         isFree = False
         p_index = 0
         for x in myresult[:5]:
-            try:
-                if int(x) == user_id:
-                    keyboard = [
-                        [
-                            InlineKeyboardButton("👤 My Account", callback_data=f'account-{user_id}'),
-                            InlineKeyboardButton("⚔️ My Challenges", callback_data=f'games'),
-                        ],
-                        [
-                            InlineKeyboardButton("📜 Read Rules of the Game", callback_data=f'rules'),
-                        ],
-                        [
-                            InlineKeyboardButton("🆕 Create new Challenge", callback_data=f'create-{user_id}'),
-                        ]
-                    ]
-                    reply_markup = InlineKeyboardMarkup(keyboard)
-                    await update.message.reply_text("<strong>You are already in that challenge</strong>\n\n You can still join to other challenges or create another one.", parse_mode='HTML', reply_markup=reply_markup)
-                    r.delete(user_id)
-                    return
-            except:
-                pass
+            if str(x) == str(user_id):
+                await update.message.reply_text("<strong>You are already in that challenge</strong>", parse_mode='HTML')
+                r.delete(user_id)
+                return
 
-            p_index = p_index + 1
-            if x == None:
+            p_index += 1
+            if x is None:
                 isFree = True
                 break
 
         if not isFree:
-            keyboard = [
-                [
-                    InlineKeyboardButton("👤 My Account", callback_data=f'account-{user_id}'),
-                    InlineKeyboardButton("⚔️ My Challenges", callback_data=f'games'),
-                ],
-                [
-                    InlineKeyboardButton("📜 Read Rules of the Game", callback_data=f'rules'),
-                ],
-                [
-                    InlineKeyboardButton("🆕 Create new Challenge", callback_data=f'create-{user_id}'),
-                ]
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            await update.message.reply_text(REPLY_NO_FREE, parse_mode='HTML', reply_markup=reply_markup)
+            await update.message.reply_text(REPLY_NO_FREE, parse_mode='HTML')
             r.delete(user_id)
-            return
-
-        if myresult[5] == 2:
-            keyboard = [
-                [
-                    InlineKeyboardButton("👤 My Account", callback_data=f'account-{user_id}'),
-                    InlineKeyboardButton("⚔️ My Challenges", callback_data=f'games'),
-                ],
-                [
-                    InlineKeyboardButton("📜 Read Rules of the Game", callback_data=f'rules'),
-                ],
-                [
-                    InlineKeyboardButton("🆕 Create new Challenge", callback_data=f'create-{user_id}'),
-                ]
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            r.delete(user_id)
-            await update.message.reply_text('<strong>Challenge has already begun.</strong>\n\nNo worries, you can choose one of the options below and start playing 🕹️', parse_mode='HTML', reply_markup=reply_markup)
             return
 
         keypair = Keypair()
 
         public_key = keypair.pubkey()
-
         private_key = keypair.secret()
-        print(f"Public Key: {public_key}")
-        print(f"Private Key: {private_key.hex()}")
 
-        mycursor = mydb.cursor()
         sql = f"UPDATE games SET p{p_index}='{user_id}' WHERE game_id='{game_id}'"
         mycursor.execute(sql)
         sql = "INSERT INTO wallets (user_id, game_id, pub_key, priv_key) VALUES (%s, %s, %s, %s)"
@@ -282,27 +156,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo join send {myresult[6]} $BOMBO to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.\n\n You have 4 minutes to confirm the deposit.', reply_markup=reply_markup, parse_mode='HTML')
+        await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\nTo join send {myresult[6]} $BOMBO to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.\n\nYou have 4 minutes to confirm the deposit.', reply_markup=reply_markup, parse_mode='HTML')
 
         r.set(user_id, "DEPOSIT")
-        return
 
+        # Set the timer for 4 minutes for deposit confirmation
+        await set_timer(update, context, due=60, text=None, job_name=f'deposit-{user_id}-{game_id}')
+
+        return
 
 def create_game_id() -> str:
     mycursor = mydb.cursor()
-
     mycursor.execute("SELECT game_id FROM games")
-
     myresult = mycursor.fetchall()
+
     while True:
-        id = random.randint(1234,9999999)
-
-        print('creating new game')
-
+        id = random.randint(1234, 9999999)
         if id not in myresult:
             return f'{id}'
-        else:
-            continue
 
 if __name__ == '__main__':
     app = Application.builder().token(TOKEN).build()
@@ -317,5 +188,4 @@ if __name__ == '__main__':
     app.add_error_handler(handle_error)
 
     print('Polling...')
-
     app.run_polling(poll_interval=2)
