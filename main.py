@@ -160,8 +160,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         r.set(user_id, "DEPOSIT")
 
-        # Set the timer for 4 minutes for deposit confirmation
-        await set_timer(update, context, due=35, text=None, job_name=f'deposit-{user_id}-{game_id}')
+        await set_timer(update, context, due=240, text=None, job_name=f'deposit-{user_id}-{game_id}')
 
         return
 
