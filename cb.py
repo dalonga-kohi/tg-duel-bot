@@ -11,6 +11,7 @@ from solders.keypair import Keypair # type: ignore
 from spl.token.instructions import transfer, get_associated_token_address
 from spl.token.constants import TOKEN_PROGRAM_ID
 from solana.rpc.types import TokenAccountOpts
+from timer import set_player_timer
 
 bombo_mint_address = Pubkey.from_string("D3pmeo4MrV2eWMJH3WybR4fnKdMiSS4DrYHqdYNNjQU5")
 mydb = mysql.connector.connect(
@@ -52,6 +53,10 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     await query.answer()
 
+async def set_start_game_timer(update, context, game_id):
+    await set_player_timer(update, context, 5 * 60, f"Game {game_id} is starting soon.", f"start-{game_id}")
+    return False
+
 def check_balance(pub_key: str) -> float:
     client = Client("https://api.mainnet-beta.solana.com")
     # sender_token_account = get_associated_token_address(Pubkey.from_string(pub_key), bombo_mint_address)
@@ -73,9 +78,31 @@ def check_balance(pub_key: str) -> float:
 
     return int(token_balance)
 
+async def user_has_deposit(user_id) -> bool:
+    status = r.get(user_id)
+    return status != 'DEPOSIT'
 
+async def handle_user_deposit(context, game_id, user_id, chat_id):
+    players = 0
 
+    mycursor = mydb.cursor()
+    mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status,stake FROM games WHERE game_id={game_id}")
+    myresult = mycursor.fetchall()
 
+    for x in myresult[:5]:
+        try:
+            if int(x) != 0:
+                players += 1
+        except:
+            pass
+
+    if not user_has_deposit(user_id) and players <= 2:
+        await context.bot.send_message(chat_id=chat_id, text=f'Player {user_id} did not deposit in time. The game will be cancelled', reply_markup=reply_markup, parse_mode='HTML')
+    
+    if not user_has_deposit(user_id) and players > 2:
+        await context.bot.send_message(chat_id=chat_id, text=f'Player {user_id} did not deposit in time and has been kicked out the game', reply_markup=reply_markup, parse_mode='HTML')
+
+    # remove_job_if_exists(f"deposit-{game_id}-{user_id}", context)
 
 async def confirm(user_id: int, query: CallbackQuery | None, chat_id, context):
     status = r.get(user_id)
@@ -96,6 +123,7 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, context):
     else:
         game_id = status
 
+    mycursor = mydb.cursor()
     mycursor.execute(f"SELECT pub_key, priv_key FROM wallets WHERE game_id='{game_id}' AND user_id='{user_id}'")
     myresult = mycursor.fetchall()
 
@@ -135,6 +163,7 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, context):
 
         await context.bot.send_message(chat_id=chat_id, text=f'Current balance of the deposit address is <strong>{balance} $BOMBO</strong>.\nSadly it is not enough 😞\n\n\nYour deposit address is:\n<code class="monospace-text">{pub_key}</code>\n \n \nSend EXACTLY <b>{stake} $BOMBO</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', parse_mode='HTML', reply_markup=reply_markup)
         await query.answer()
+
         return
 
     keyboard = [
@@ -152,6 +181,8 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, context):
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
+
+    #context.job_queue.run_repeating(lambda job: handle_user_deposit(context, game_id, user_id, chat_id), interval=60, first=60)
 
     await context.bot.send_message(chat_id=chat_id, text=f'✅ <strong>Success!</strong>\n\n Your game id is: <code class="monospace-text">{game_id}</code>\n\nYou can share it with your frens and wait for the start', reply_markup=reply_markup, parse_mode='HTML')
     r.delete(user_id)

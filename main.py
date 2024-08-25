@@ -8,7 +8,7 @@ import random
 from solders.keypair import Keypair  # type: ignore
 from solana.rpc.api import Client
 from cb import button
-from timer import set_timer, remove_job_if_exists
+from timer import set_player_timer, remove_job_if_exists
 
 sol_client = Client("https://api.mainnet-beta.solana.com")
 r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
@@ -160,7 +160,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         r.set(user_id, "DEPOSIT")
 
-        await set_timer(update, context, due=240, text=None, job_name=f'deposit-{user_id}-{game_id}')
+        await set_player_timer(update, context, due=240, text=None, job_name=f'deposit-{user_id}-{game_id}')
 
         return
 

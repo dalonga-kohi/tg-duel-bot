@@ -13,7 +13,7 @@ mydb = mysql.connector.connect(
     database=MYSQL_DB
 )
 
-async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
+async def player_alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     job = context.job
     
     username = job.data["username"]
@@ -59,7 +59,7 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
         print(f"Player {user_id} payed the deposit")
         await context.bot.send_message(job.chat_id, text=f"Thank you! Your deposit was confirmed in time.")
 
-async def send_warning(context: ContextTypes.DEFAULT_TYPE) -> None:
+async def send_player_warning(context: ContextTypes.DEFAULT_TYPE) -> None:
     job = context.job
     user_id = job.name.split("-")[2]
 
@@ -76,7 +76,7 @@ def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
         job.schedule_removal()
     return True
 
-async def set_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, due: int, text: str | None, job_name: str) -> None:
+async def set_player_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, due: int, text: str | None, job_name: str) -> None:
     chat_id = update.effective_message.chat_id
     user_id = update.message.from_user.id
     username = update.message.from_user.first_name
@@ -93,11 +93,11 @@ async def set_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, due: int
 
     job_removed = remove_job_if_exists(str(chat_id), context)
 
-    context.job_queue.run_once(alarm, due, chat_id=chat_id, name=job_name, data=job_data)
+    context.job_queue.run_once(player_alarm, due, chat_id=chat_id, name=job_name, data=job_data)
 
     warning_due = due - 30
     warning_job_name = f"warning-{job_name}"
-    context.job_queue.run_once(send_warning, warning_due, chat_id=chat_id, name=warning_job_name, data=job_data)
+    context.job_queue.run_once(send_player_warning, warning_due, chat_id=chat_id, name=warning_job_name, data=job_data)
 
     if text:
         await update.effective_message.reply_text(text)
