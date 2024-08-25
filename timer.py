@@ -15,47 +15,45 @@ mydb = mysql.connector.connect(
 
 async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     job = context.job
-    user_id = job.name.split("-")[1]  # Extract user_id from job name
-    game_id = job.name.split("-")[2]  # Extract game_id from job name
-
-    print(f"GAMEID: {game_id}")
-    print(f"USERID: {user_id}")
-
-    # Check if the user has confirmed the deposit
+    
+    username = job.data["username"]
+    user_id = job.data["user_id"]
+    game_id = job.name.split("-")[2]
+    chat_id = job.data["chat_id"]
 
     status = r.get(user_id)
 
-    if status == "DEPOSIT":  # User hasn't confirmed deposit
-        # Remove the player from the game (same logic as before)
-
+    if status == "DEPOSIT":
         mycursor = mydb.cursor()
         mycursor.execute(f"SELECT p1, p2, p3, p4, p5 FROM games WHERE game_id={game_id}")
         myresult = mycursor.fetchone()
 
+
         player_removed = False
+        p_index=0
         for x in myresult[:5]:
-            if x == user_id:
-                mycursor.execute(f"UPDATE games SET p{x}=NULL WHERE game_id='{game_id}'")
-                print(f"index: {x} player: {user_id} gameid: {game_id}")
-                player_removed = True
-                break
+            p_index += 1
+            if x:
+                if int(x) == int(user_id):
+                    mycursor.execute(f"UPDATE games SET p{p_index}=NULL WHERE game_id={game_id}")
+                    player_removed = True
+                    break
 
         if player_removed:
             mydb.commit()
 
-            # Notify the player that they were kicked out
+            print(f"Player {user_id} has been kicked out the game")
             await context.bot.send_message(job.chat_id, text=f"Time is up! You didn't confirm your deposit and have been removed from the game.")
 
-            # Notify other players that the user has been kicked
             for x in myresult:
-                if x and x != int(user_id):
-                    await context.bot.send_message(job.chat_id, text=f"Player {user_id} has been removed from the game due to failure to confirm deposit.")
+                if x:
+                    if int(x) != int(user_id):
+                        await context.bot.send_message(chat_id=x, text=f"Player {username} has been removed from the game due to failure to confirm deposit.")
             
-            # Cleanup
             r.delete(user_id)
 
         else:
-            await context.bot.send_message(job.chat_id, text=f"Error: Could not remove player {user_id} from the game.")
+            await context.bot.send_message(job.chat_id, text=f"Error: Could not remove player {username} from the game.")
     
     else:
         print(f"Player {user_id} payed the deposit")
@@ -63,11 +61,10 @@ async def alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def send_warning(context: ContextTypes.DEFAULT_TYPE) -> None:
     job = context.job
-    user_id = job.name.split("-")[2]  # Extract user_id from job name
+    user_id = job.name.split("-")[2]
 
     print(f"User {user_id} has 30s to confirm deposit")
 
-    # Send a warning message
     await context.bot.send_message(job.chat_id, text=f"Warning: You have 30 seconds left to confirm your deposit!")
 
 
@@ -81,22 +78,26 @@ def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
 
 async def set_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, due: int, text: str | None, job_name: str) -> None:
     chat_id = update.effective_message.chat_id
+    user_id = update.message.from_user.id
+    username = update.message.from_user.first_name
+
+    job_data = {
+        "chat_id": chat_id,
+        "user_id": user_id,
+        "username": username
+    }
 
     if due < 0:
         await update.effective_message.reply_text("Sorry we cannot go back to the future!")
         return
 
-    # Remove previous jobs, if any
     job_removed = remove_job_if_exists(str(chat_id), context)
 
-    # Schedule the main timer (4 minutes)
-    context.job_queue.run_once(alarm, due, chat_id=chat_id, name=job_name, data=due)
+    context.job_queue.run_once(alarm, due, chat_id=chat_id, name=job_name, data=job_data)
 
-    # Schedule the warning timer (3 minutes 30 seconds)
-    warning_due = due - 30  # Warning triggers 30 seconds before due time
+    warning_due = due - 30
     warning_job_name = f"warning-{job_name}"
-    context.job_queue.run_once(send_warning, warning_due, chat_id=chat_id, name=warning_job_name)
+    context.job_queue.run_once(send_warning, warning_due, chat_id=chat_id, name=warning_job_name, data=job_data)
 
-    # Notify user
     if text:
         await update.effective_message.reply_text(text)
