@@ -4,6 +4,8 @@ from datetime import timedelta
 import redis
 from config import R_HOST, R_PORT, MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_DB
 import mysql.connector
+from mocked import start_game, cancel_game
+from datetime import datetime, timezone
 
 r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
 mydb = mysql.connector.connect(
@@ -12,6 +14,55 @@ mydb = mysql.connector.connect(
     password=MYSQL_PASS,
     database=MYSQL_DB
 )
+
+async def check_full_players(game_id: str) -> None:
+    players = 0
+
+    mycursor = mydb.cursor()
+    mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status,stake FROM games WHERE game_id={game_id}")
+    myresult = mycursor.fetchall()
+
+    for x in range(0,5):
+        try:
+            if myresult[0][x] and r.get(x) != "DEPOSIT":
+                players += 1
+        except:
+            pass
+
+    if players == 5:
+        start_game(game_id) # MOCKED
+
+async def send_game_warning(context: ContextTypes.DEFAULT_TYPE) -> None:
+    job = context.job
+    chat_id = job.data["chat_id"]
+    game_id = job.name.split("-")[2]
+
+    print(game_id)
+
+    players = 0
+
+    mycursor = mydb.cursor()
+    mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status,stake FROM games WHERE game_id={game_id}")
+    myresult = mycursor.fetchall()
+
+    for x in range(0,5):
+        try:
+            if myresult[0][x]:
+                players += 1
+        except:
+            pass
+
+    print(players)
+    
+    if players >= 2:
+        for x in range(0,5):
+            try:
+                if myresult[0][x]:
+                    await context.bot.send_message(chat_id=myresult[0][x], text=f"The game will start in 30 seconds")
+            except:
+                pass
+    else:
+        await context.bot.send_message(chat_id=chat_id, text=f"The game needs at least 2 players, it will be cancelled in 30 seconds")
 
 async def player_alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     job = context.job
@@ -58,6 +109,55 @@ async def player_alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     else:
         print(f"Player {user_id} payed the deposit")
         await context.bot.send_message(job.chat_id, text=f"Thank you! Your deposit was confirmed in time.")
+        await check_full_players(game_id)
+
+async def get_players_with_deposit(game_id) -> int:
+    players = 0
+
+    mycursor = mydb.cursor()
+    mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status,stake FROM games WHERE game_id={game_id}")
+    myresult = mycursor.fetchall()
+
+    for x in myresult[:5]:
+        try:
+            if int(x) != 0 and r.get(x) != "DEPOSIT":
+                players += 1
+        except:
+            pass
+    
+    return players
+
+async def game_alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
+    job = context.job
+
+    game_id = job.name.split("-")[1]
+    chat_id = job.data["chat_id"]
+    
+    players = await get_players_with_deposit(game_id)
+
+    if players >= 2:
+        start_game(game_id) # MOCKED
+    else:
+        cancel_game(game_id) # MOCKED
+
+def get_time_left_in_job(job_name: str, context: ContextTypes.DEFAULT_TYPE) -> int | None:
+    current_jobs = context.job_queue.get_jobs_by_name(job_name)
+    
+    if current_jobs:
+        job = current_jobs[0]
+        
+        current_time = datetime.now(timezone.utc)  # Get the current UTC time
+        time_left = job.next_t - current_time  # Calculate the time left as a timedelta
+
+        # Convert the time left to seconds and ensure it's a positive value
+        time_left_seconds = int(time_left.total_seconds())
+        
+        if time_left_seconds > 0:
+            return time_left_seconds  # Return time left in seconds as an integer
+        else:
+            return None  # Job has expired or very close to execution
+    else:
+        return None  # No active job found
 
 async def send_player_warning(context: ContextTypes.DEFAULT_TYPE) -> None:
     job = context.job
@@ -76,10 +176,38 @@ def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
         job.schedule_removal()
     return True
 
+async def modify_game_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, new_due: int, job_name: str, text: str) -> None:
+    chat_id = update.effective_message.chat_id
+    user_id = update.message.from_user.id
+    username = update.message.from_user.first_name
+
+    job_data = {
+        "chat_id": chat_id,
+        "user_id": user_id,
+        "username": username
+    }
+
+    job_removed = remove_job_if_exists(job_name, context)
+
+    context.job_queue.run_once(alarm, new_due, chat_id=chat_id, name=job_name, data=job_data)
+
+    warning_due = new_due - 30
+    warning_job_name = f"warning-{job_name}"
+    context.job_queue.run_once(send_warning, warning_due, chat_id=chat_id, name=warning_job_name, data=job_data)
+
+    for x in range(0,5):
+        try:
+            if myresult[0][x]:
+                await context.bot.send_message(chat_id=myresult[0][x], text=text)
+        except:
+            pass
+
 async def set_player_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, due: int, text: str | None, job_name: str) -> None:
     chat_id = update.effective_message.chat_id
     user_id = update.message.from_user.id
     username = update.message.from_user.first_name
+
+    game_id = job_name.split("-")[1]
 
     job_data = {
         "chat_id": chat_id,
@@ -91,7 +219,22 @@ async def set_player_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, d
         await update.effective_message.reply_text("Sorry we cannot go back to the future!")
         return
 
-    job_removed = remove_job_if_exists(str(chat_id), context)
+    mycursor = mydb.cursor()
+    mycursor.execute(f"SELECT p1, p2, p3, p4, p5 FROM games WHERE game_id={game_id}")
+    myresult = mycursor.fetchone()
+
+    time_left = get_time_left_in_job(job_name=f"start-{game_id}", context=context)
+
+    print(f"TIME: {time_left}")
+
+    if time_left and time_left < 260:
+        for x in range(0,5):
+            try:
+                if myresult[0][x] and myresult[0][x] != user_id:
+                    await modify_game_timer(update, context, new_due=240, job_name=f"start-{game_id}", text="Game queque will be increased to 4 mins due to player deposit")
+            except:
+                pass
+
 
     context.job_queue.run_once(player_alarm, due, chat_id=chat_id, name=job_name, data=job_data)
 
@@ -101,3 +244,59 @@ async def set_player_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, d
 
     if text:
         await update.effective_message.reply_text(text)
+
+async def modify_game_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, new_due: int, job_name: str, text: str) -> None:
+    chat_id = update.effective_message.chat_id
+    
+    existing_jobs = context.job_queue.get_jobs_by_name(job_name)
+    
+    if not existing_jobs:
+        await update.effective_message.reply_text("No active timer to modify!")
+        return
+    
+    current_job = existing_jobs[0]
+    current_remaining_time = current_job.next_t - context.application.time
+
+    remove_job_if_exists(job_name, context)
+    
+    job_data = { "chat_id": chat_id }
+    context.job_queue.run_once(game_alarm, new_due, chat_id=chat_id, name=job_name, data=job_data)
+
+    warning_due = new_due - 30
+    warning_job_name = f"warning-{job_name}"
+    context.job_queue.run_once(send_game_warning, warning_due, chat_id=chat_id, name=warning_job_name, data=job_data)
+
+    for x in range(0,5):
+        try:
+            if myresult[0][x]:
+                await context.bot.send_message(chat_id=myresult[0][x], text=text)
+        except:
+            pass
+
+
+async def set_start_game_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, due: int, text: str, job_name: str) -> None:
+    chat_id = update.effective_message.chat_id
+
+    job_data = { "chat_id": chat_id }
+
+    if due < 0:
+        await update.effective_message.reply_text("Sorry we cannot go back to the future!")
+        return
+    
+    job_removed = remove_job_if_exists(str(chat_id), context)
+    context.job_queue.run_once(game_alarm, due, chat_id=chat_id, name=job_name, data=job_data)
+
+    warning_due = due - 30
+    warning_job_name = f"warning-{job_name}"
+    context.job_queue.run_once(send_game_warning, warning_due, chat_id=chat_id, name=warning_job_name, data=job_data)
+
+    mycursor = mydb.cursor()
+    mycursor.execute(f"SELECT p1, p2, p3, p4, p5 FROM games WHERE game_id={game_id}")
+    myresult = mycursor.fetchone()
+
+    for x in range(0,5):
+        try:
+            if myresult[0][x]:
+                await context.bot.send_message(chat_id=myresult[0][x], text=text)
+        except:
+            pass

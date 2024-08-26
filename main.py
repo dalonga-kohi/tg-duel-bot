@@ -160,7 +160,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         r.set(user_id, "DEPOSIT")
 
-        await set_player_timer(update, context, due=240, text=None, job_name=f'deposit-{user_id}-{game_id}')
+        await set_player_timer(update=update, context=context, due=240, text=None, job_name=f'deposit-{user_id}-{game_id}')
 
         return
 

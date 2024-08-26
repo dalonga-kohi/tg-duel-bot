@@ -11,7 +11,7 @@ from solders.keypair import Keypair # type: ignore
 from spl.token.instructions import transfer, get_associated_token_address
 from spl.token.constants import TOKEN_PROGRAM_ID
 from solana.rpc.types import TokenAccountOpts
-from timer import set_player_timer
+from timer import set_player_timer, set_start_game_timer
 
 bombo_mint_address = Pubkey.from_string("D3pmeo4MrV2eWMJH3WybR4fnKdMiSS4DrYHqdYNNjQU5")
 mydb = mysql.connector.connect(
@@ -30,7 +30,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     arg = query.data.split('-')[0]
 
     if arg == 'confirm':
-        await confirm(chat_id=chat_id, query=query, user_id=user_id,context=context)
+        await confirm(chat_id=chat_id, query=query, user_id=user_id,context=context, update=update)
 
 
     elif arg == 'abandon':
@@ -53,10 +53,6 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     await query.answer()
 
-async def set_start_game_timer(update, context, game_id):
-    await set_player_timer(update, context, 5 * 60, f"Game {game_id} is starting soon.", f"start-{game_id}")
-    return False
-
 def check_balance(pub_key: str) -> float:
     client = Client("https://api.mainnet-beta.solana.com")
     # sender_token_account = get_associated_token_address(Pubkey.from_string(pub_key), bombo_mint_address)
@@ -78,33 +74,7 @@ def check_balance(pub_key: str) -> float:
 
     return int(token_balance)
 
-async def user_has_deposit(user_id) -> bool:
-    status = r.get(user_id)
-    return status != 'DEPOSIT'
-
-async def handle_user_deposit(context, game_id, user_id, chat_id):
-    players = 0
-
-    mycursor = mydb.cursor()
-    mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status,stake FROM games WHERE game_id={game_id}")
-    myresult = mycursor.fetchall()
-
-    for x in myresult[:5]:
-        try:
-            if int(x) != 0:
-                players += 1
-        except:
-            pass
-
-    if not user_has_deposit(user_id) and players <= 2:
-        await context.bot.send_message(chat_id=chat_id, text=f'Player {user_id} did not deposit in time. The game will be cancelled', reply_markup=reply_markup, parse_mode='HTML')
-    
-    if not user_has_deposit(user_id) and players > 2:
-        await context.bot.send_message(chat_id=chat_id, text=f'Player {user_id} did not deposit in time and has been kicked out the game', reply_markup=reply_markup, parse_mode='HTML')
-
-    # remove_job_if_exists(f"deposit-{game_id}-{user_id}", context)
-
-async def confirm(user_id: int, query: CallbackQuery | None, chat_id, context):
+async def confirm(user_id: int, query: CallbackQuery | None, chat_id, update, context):
     status = r.get(user_id)
 
     if not status:
@@ -182,7 +152,7 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, context):
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    #context.job_queue.run_repeating(lambda job: handle_user_deposit(context, game_id, user_id, chat_id), interval=60, first=60)
-
     await context.bot.send_message(chat_id=chat_id, text=f'✅ <strong>Success!</strong>\n\n Your game id is: <code class="monospace-text">{game_id}</code>\n\nYou can share it with your frens and wait for the start', reply_markup=reply_markup, parse_mode='HTML')
+    print(f"CB: {game_id}")
+    await set_start_game_timer(update=update, context=context, due=40, text="5 min timer start", job_name=f'start-{game_id}')
     r.delete(user_id)
