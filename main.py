@@ -1,7 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CommandHandler, ContextTypes, Application, MessageHandler, filters, CallbackQueryHandler
-from commands import handle_cmd_duel, handle_cmd_join, handle_cmd_start, handle_cmd_cancel, handle_cmd_status
-from config import CMD_DUEL, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, REPLY_NO_FREE, REPLY_NO_GAME, REPLY_NO_JOIN, REPLY_WRONG_STAKE, TOKEN, CMD_START, CMD_CANCEL, CMD_JOIN, CMD_STATUS
+from commands import handle_cmd_duel, handle_cmd_join, handle_cmd_start, handle_cmd_status
+from config import CMD_DUEL, MAX_STAKE, MIN_STAKE, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, REPLY_NO_FREE, REPLY_NO_GAME, REPLY_NO_JOIN, REPLY_WRONG_STAKE, TOKEN, CMD_START, CMD_CANCEL, CMD_JOIN, CMD_STATUS
 import redis
 import mysql.connector
 import random
@@ -47,7 +47,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if status == 'SETTING':
         keyboard = [
-            [InlineKeyboardButton("❌ Cancel Challenge", callback_data=f'abandon-{user_id}')],
+            [InlineKeyboardButton("❌ Cancel Challenge", callback_data=f'abandon-nogame')],
         ]
 
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -57,6 +57,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except:
             await update.message.reply_text(REPLY_WRONG_STAKE ,reply_markup=reply_markup)
             return
+
+        if stake < MIN_STAKE or stake > MAX_STAKE:
+            await update.message.reply_text(f"Stake must be in range of <b>{MIN_STAKE} to {MAX_STAKE}</b> $BOMBO" ,reply_markup=reply_markup, parse_mode='HTML')
+            return
+
         keypair = Keypair()
         game_id = create_game_id()
 
@@ -94,7 +99,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print(f'GAME ID: {game_id}')
         except:
             keyboard = [
-                [InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-{user_id}')]
+                [InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-nogame')]
             ]
 
             reply_markup = InlineKeyboardMarkup(keyboard)
@@ -108,15 +113,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         if not myresult:
             keyboard = [
-                [InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-{user_id}')]
+                [InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-nogame')]
             ]
 
             reply_markup = InlineKeyboardMarkup(keyboard)
             await update.message.reply_text(REPLY_NO_JOIN, parse_mode='HTML', reply_markup=reply_markup)
             return
-        if not myresult[0][5] == 9:
+        if myresult[0][5] == 9:
             keyboard = [
-                [InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-{user_id}')]
+                [InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-nogame')]
             ]
 
             reply_markup = InlineKeyboardMarkup(keyboard)
@@ -209,7 +214,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = [
             [
                 InlineKeyboardButton("💸 Confirm Deposit", callback_data=f'confirm-{game_id}'),
-                InlineKeyboardButton("❌ Cancel", callback_data=f'quit-{game_id}')
+                InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-{game_id}')
             ],
         ]
 
@@ -241,7 +246,6 @@ if __name__ == '__main__':
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler(CMD_START, handle_cmd_start))
     app.add_handler(CommandHandler(CMD_DUEL, handle_cmd_duel))
-    app.add_handler(CommandHandler(CMD_CANCEL, handle_cmd_cancel))
     app.add_handler(CommandHandler(CMD_STATUS, handle_cmd_status))
     app.add_handler(CommandHandler(CMD_JOIN, handle_cmd_join))
 
