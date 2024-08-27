@@ -1,6 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CommandHandler, ContextTypes, Application, MessageHandler, filters, CallbackQueryHandler
-from commands import handle_cmd_duel, handle_cmd_join, handle_cmd_start, handle_cmd_status
+from cb import withdraw
+from commands import handle_cmd_duel, handle_cmd_join, handle_cmd_start, handle_cmd_status, join
 from config import CMD_DUEL, MAX_STAKE, MIN_STAKE, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, REPLY_NO_FREE, REPLY_NO_GAME, REPLY_NO_JOIN, REPLY_WRONG_STAKE, TOKEN, CMD_START, CMD_CANCEL, CMD_JOIN, CMD_STATUS
 import redis
 import mysql.connector
@@ -8,6 +9,7 @@ import random
 from solders.keypair import Keypair # type: ignore
 from solana.rpc.api import Client
 from cb import button
+from status import show_status
 
 sol_client = Client("https://api.mainnet-beta.solana.com")
 r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
@@ -45,9 +47,23 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ###########################################
     ###########################################
 
-    if status == 'SETTING':
+    if status == 'WD':
+        address = proc
+        res = await withdraw(address, user_id)
+
+        if not res:
+            keyboard = [
+                [InlineKeyboardButton("❌ Cancel", callback_data=f'canaccount-1')],
+            ]
+
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await update.message.reply_text("This is not a valid SOL wallet or you have no funds to withdraw\nPlease, try again:" ,reply_markup=reply_markup)
+            return
+
+
+    elif status == 'SETTING':
         keyboard = [
-            [InlineKeyboardButton("❌ Cancel Challenge", callback_data=f'abandon-nogame')],
+            [InlineKeyboardButton("❌ Cancel Gulag", callback_data=f'abandon-nogame')],
         ]
 
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -83,17 +99,17 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = [
             [
                 InlineKeyboardButton("💸 Confirm Deposit", callback_data=f'confirm-create-{game_id}'),
-                InlineKeyboardButton("❌ Cancel Challenge", callback_data=f'abandon-{game_id}')
+                InlineKeyboardButton("❌ Cancel Gulag", callback_data=f'abandon-{game_id}')
             ],
         ]
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo create the challenge send <b>{stake} $BOMBO</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', reply_markup=reply_markup, parse_mode='HTML')
+        await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo create the gulag send <b>{stake} $BOMBO</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', reply_markup=reply_markup, parse_mode='HTML')
         r.set(user_id, f"DEPOSIT")
         return
 
-    if status == 'JOINING':
+    elif status == 'JOINING':
         try:
             game_id = int(proc)
             print(f'GAME ID: {game_id}')
@@ -106,124 +122,22 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(REPLY_WRONG_STAKE, reply_markup=reply_markup, parse_mode='HTML')
             return
 
-        mycursor = mydb.cursor()
+        await join(game_id=game_id, update=update, user_id=user_id, context=context)
 
-        mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status,stake FROM games WHERE game_id={game_id}")
-        myresult = mycursor.fetchall()
-
-        if not myresult:
+    elif status == 'STATUS':
+        try:
+            game_id = int(proc)
+            print(f'GAME ID: {game_id}')
+        except:
             keyboard = [
                 [InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-nogame')]
             ]
 
             reply_markup = InlineKeyboardMarkup(keyboard)
-            await update.message.reply_text(REPLY_NO_JOIN, parse_mode='HTML', reply_markup=reply_markup)
-            return
-        if myresult[0][5] == 9:
-            keyboard = [
-                [InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-nogame')]
-            ]
-
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            await update.message.reply_text(REPLY_NO_JOIN, parse_mode='HTML', reply_markup=reply_markup)
-            return
-        myresult = myresult[0]
-        print(myresult)
-
-        isFree = False
-        p_index = 0
-        for x in myresult[:5]:
-            try:
-                if int(x) == user_id:
-                    keyboard = [
-                        [
-                            InlineKeyboardButton("👤 My Account", callback_data=f'account-{user_id}'),
-                            InlineKeyboardButton("⚔️ My Challenges", callback_data=f'games'),
-                        ],
-                        [
-                            InlineKeyboardButton("📜 Read Rules of the Game", callback_data=f'rules'),
-                        ],
-                        [
-                            InlineKeyboardButton("🆕 Create new Challenge", callback_data=f'create-{user_id}'),
-                        ]
-                    ]
-                    reply_markup = InlineKeyboardMarkup(keyboard)
-                    await update.message.reply_text("<strong>You are already in that challenge</strong>\n\n You can still join to other challenges or create another one.", parse_mode='HTML', reply_markup=reply_markup)
-                    r.delete(user_id)
-                    return
-            except:
-                pass
-
-            p_index = p_index + 1
-            if x == None:
-                isFree = True
-                break
-
-        if not isFree:
-            keyboard = [
-                [
-                    InlineKeyboardButton("👤 My Account", callback_data=f'account-{user_id}'),
-                    InlineKeyboardButton("⚔️ My Challenges", callback_data=f'games'),
-                ],
-                [
-                    InlineKeyboardButton("📜 Read Rules of the Game", callback_data=f'rules'),
-                ],
-                [
-                    InlineKeyboardButton("🆕 Create new Challenge", callback_data=f'create-{user_id}'),
-                ]
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            await update.message.reply_text(REPLY_NO_FREE, parse_mode='HTML', reply_markup=reply_markup)
-            r.delete(user_id)
+            await update.message.reply_text(REPLY_WRONG_STAKE, reply_markup=reply_markup, parse_mode='HTML')
             return
 
-        if myresult[5] == 2:
-            keyboard = [
-                [
-                    InlineKeyboardButton("👤 My Account", callback_data=f'account-{user_id}'),
-                    InlineKeyboardButton("⚔️ My Challenges", callback_data=f'games'),
-                ],
-                [
-                    InlineKeyboardButton("📜 Read Rules of the Game", callback_data=f'rules'),
-                ],
-                [
-                    InlineKeyboardButton("🆕 Create new Challenge", callback_data=f'create-{user_id}'),
-                ]
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            r.delete(user_id)
-            await update.message.reply_text('<strong>Challenge has already begun.</strong>\n\nNo worries, you can choose one of the options below and start playing 🕹️', parse_mode='HTML', reply_markup=reply_markup)
-            return
-
-        keypair = Keypair()
-
-        public_key = keypair.pubkey()
-
-        private_key = keypair.secret()
-        print(f"Public Key: {public_key}")
-        print(f"Private Key: {private_key.hex()}")
-
-        mycursor = mydb.cursor()
-        sql = f"UPDATE games SET p{p_index}='{user_id}' WHERE game_id='{game_id}'"
-        mycursor.execute(sql)
-        sql = "INSERT INTO wallets (user_id, game_id, pub_key, priv_key) VALUES (%s, %s, %s, %s)"
-        val = (user_id, game_id, f'{public_key}', private_key.hex())
-        mycursor.execute(sql, val)
-
-        mydb.commit()
-        keyboard = [
-            [
-                InlineKeyboardButton("💸 Confirm Deposit", callback_data=f'confirm-{game_id}'),
-                InlineKeyboardButton("❌ Cancel", callback_data=f'stopj-{game_id}')
-            ],
-        ]
-
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
-        await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo join send {myresult[6]} $BOMBO to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.\n\n You have 4 minutes to confirm the deposit.', reply_markup=reply_markup, parse_mode='HTML')
-
-        r.set(user_id, "DEPOSIT")
-        return
+        await show_status(game_id,context,user_id)
 
 
 def create_game_id() -> str:

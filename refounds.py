@@ -12,6 +12,9 @@ from solana.transaction import Transaction
 from spl.token.constants import TOKEN_PROGRAM_ID
 import base58
 
+from group import send_group_msg
+from group import MsgType
+
 bombo_mint_address = Pubkey.from_string("D3pmeo4MrV2eWMJH3WybR4fnKdMiSS4DrYHqdYNNjQU5")
 
 mydb = mysql.connector.connect(
@@ -26,13 +29,13 @@ mycursor = mydb.cursor()
 keyboard = [
     [
         InlineKeyboardButton("👤 My Account", callback_data=f'account-1'),
-        InlineKeyboardButton("⚔️ My Challenges", callback_data=f'games'),
+        InlineKeyboardButton("⚔️ My Gulags", callback_data=f'games'),
     ],
     [
         InlineKeyboardButton("📜 Read Rules of the Game", callback_data=f'rules'),
     ],
     [
-        InlineKeyboardButton("🆕 Create new Challenge", callback_data=f'create-new'),
+        InlineKeyboardButton("🆕 Create new gulag", callback_data=f'create-new'),
     ]
 ]
 reply_markup = InlineKeyboardMarkup(keyboard)
@@ -74,7 +77,7 @@ async def abandon_game(game_id: int, user_id: int, query: CallbackQuery | None, 
 
 
 
-async def stop_join(game_id: int, user_id: int, query: CallbackQuery | None, chat_id: int, context: ContextTypes.DEFAULT_TYPE):
+async def stop_join(game_id: int, user_id: int, chat_id: int, context: ContextTypes.DEFAULT_TYPE):
     p_status = r.get(user_id)
 
     if not p_status:
@@ -83,7 +86,7 @@ async def stop_join(game_id: int, user_id: int, query: CallbackQuery | None, cha
         return
     if game_id == 'nogame':
         if p_status == 'JOINING':
-            await context.bot.send_message(chat_id=chat_id, text="<b>You are no longer joining a challenge!</b>\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new challenge or join to an existing game.", parse_mode='HTML', reply_markup=reply_markup)
+            await context.bot.send_message(chat_id=chat_id, text="<b>You are no longer joining a gulag!</b>\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new gulag or join to an existing gulag.", parse_mode='HTML', reply_markup=reply_markup)
             r.delete(user_id)
         return
 
@@ -101,9 +104,9 @@ async def stop_join(game_id: int, user_id: int, query: CallbackQuery | None, cha
     # mydb.commit()
 
     r.delete(user_id)
-    await context.bot.send_message(chat_id=chat_id, text="<b>You are no longer joining a challenge!</b>\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new challenge or join to an existing game.", parse_mode='HTML', reply_markup=reply_markup)
+    await context.bot.send_message(chat_id=chat_id, text="<b>You are no longer joining a gulag!</b>\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new gulag or join to an existing gulag.", parse_mode='HTML', reply_markup=reply_markup)
 
-async def cancel(game_id: int, user_id: int, query: CallbackQuery | None, chat_id: int, context: ContextTypes.DEFAULT_TYPE):
+async def cancel(game_id: int, user_id: int, chat_id: int, context: ContextTypes.DEFAULT_TYPE):
     p_status = r.get(user_id)
     if p_status:
         return
@@ -128,7 +131,6 @@ async def cancel(game_id: int, user_id: int, query: CallbackQuery | None, chat_i
         results = mycursor.fetchall()
         if not results:
             r.delete(user_id)
-            await query.answer('No game found')
             return
 
         for i in range(0,5):
@@ -137,16 +139,16 @@ async def cancel(game_id: int, user_id: int, query: CallbackQuery | None, chat_i
             await refound(game_id=game_id, user_id=results[0][i])
 
 
-        sql = f"DELETE from games WHERE game_id={game_id} AND p1={user_id} AND status=1"
+        sql = f"UPDATE games SET status=4 WHERE game_id={game_id} AND p1={user_id}"
         mycursor.execute(sql)
         mydb.commit()
         if mycursor.rowcount < 1:
             r.delete(user_id)
-            await query.answer('No game found')
             return
 
         r.delete(user_id)
-        await context.bot.send_message(chat_id=chat_id, text=f"<b>You have ceased the challenge #{game_id}!</b>\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new challenge or join to an existing game.", parse_mode='HTML', reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=chat_id, text=f"<b>You have ceased the gulag #{game_id}!</b>\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new gulag or join to an existing gulag.", parse_mode='HTML', reply_markup=reply_markup)
+        await send_group_msg(context=context,msg_type=MsgType.CANCEL, game_id=game_id, user_id=user_id)
     else:
         await refound(game_id=game_id, user_id=user_id)
 
@@ -155,11 +157,10 @@ async def cancel(game_id: int, user_id: int, query: CallbackQuery | None, chat_i
         mydb.commit()
         if mycursor.rowcount < 1:
             r.delete(user_id)
-            await query.answer('No game found')
             return
 
         r.delete(user_id)
-        await context.bot.send_message(chat_id=chat_id, text=f"<b>You are no longer in the challenge #{game_id}!</b>\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new challenge or join to an existing game.", parse_mode='HTML', reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=chat_id, text=f"<b>You are no longer in the gulag #{game_id}!</b>\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new gulag or join to an existing gulag.", parse_mode='HTML', reply_markup=reply_markup)
 
 
 async def refound(user_id: int, game_id:int) -> bool:
@@ -209,7 +210,8 @@ async def refound(user_id: int, game_id:int) -> bool:
         r.delete(user_id)
         return
 
-    transaction = Transaction().add(
+    try:
+        transaction = Transaction().add(
         transfer(
             TransferParams(
                 program_id=TOKEN_PROGRAM_ID,
@@ -219,13 +221,69 @@ async def refound(user_id: int, game_id:int) -> bool:
                 amount=token_balance
             )
         )
-    )
-    response = client.send_transaction(transaction, sender)
+        )
+        response = client.send_transaction(transaction, sender)
+        print(f"Transaction Signature: {response}")
+    except:
+        pass
 
-    print(f"Transaction Signature: {response}")
     return True
 
 def hex_to_base58(hex_string):
     bytes_str = bytes.fromhex(hex_string)
     base58_str = base58.b58encode(bytes_str)
     return base58_str.decode("UTF-8")
+
+async def withdraw(address: str, user_id: int) -> bool:
+    client = Client("https://api.mainnet-beta.solana.com")
+    mydb.commit()
+    mycursor.execute(f"SELECT pub_key, priv_key FROM accounts WHERE user_id={user_id}")
+    myresults = mycursor.fetchall()
+
+    if not myresults:
+        return False
+
+
+    sender_priv_key = hex_to_base58(myresults[0][1])
+    sender = Keypair.from_seed(base58.b58decode(sender_priv_key))
+    sender_pub_key = sender.pubkey()
+
+    sender_token_account = get_associated_token_address(sender_pub_key, bombo_mint_address)
+
+    try:
+        recipient_token_account = get_associated_token_address(address, bombo_mint_address)
+    except:
+        return False
+
+    token_accounts = client.get_token_accounts_by_owner(sender_pub_key, TokenAccountOpts(mint=bombo_mint_address))
+    if not token_accounts.value:
+        token_balance = 0
+    else:
+        token_balance = client.get_token_account_balance(token_accounts.value[0].pubkey).value.amount
+        if not token_balance:
+            token_balance = 0
+
+    token_balance = int(token_balance)
+
+    if token_balance <= 0:
+        r.delete(user_id)
+        return
+
+    try:
+        transaction = Transaction().add(
+            transfer(
+                TransferParams(
+                    program_id=TOKEN_PROGRAM_ID,
+                    source=sender_token_account,
+                    dest=recipient_token_account,
+                    owner=sender_pub_key,
+                    amount=token_balance
+                )
+            )
+        )
+        response = client.send_transaction(transaction, sender)
+
+        print(f"Transaction Signature: {response}")
+        return True
+    except:
+        return False
