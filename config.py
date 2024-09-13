@@ -1,10 +1,15 @@
-TOKEN = '7311308484:AAESuIrjxAvXuwxK7vz6Fh7e8NWVMwR7zXs'
-BOT_USERNAME = '@TestoDueloBot'
-CHAT_ID = '-1002233858008'
-FEE_ADDRESS = "yG8QooGsUeTsjmKwSP44hnt9j149uT7yBv1sCHu6v7J"
-MIN_STAKE = 5000
+TOKEN = '7075703461:AAHrvCpQaFoqdWvHivVogJ93_0ikWDdwgao'
+BOT_USERNAME = 'BomboGulag_Bot'
+CHAT_ID = '-1002162519957'
+FEE_ADDRESS = "8yoANdy68RvXXXHJ36Gzxb1N6wTaPHnEg23wJY6UTcqe"
+FEE_ADDRESS2 = "8yoANdy68RvXXXHJ36Gzxb1N6wTaPHnEg23wJY6UTcqe"
+VAULT = "2JLM5dd7VXL1dVoToM2vUP3DwyvTVtnatTeGDwLumx6u"
+VAULT_PRIV = "ffdd857f2960105b5605066aabe6dc29262f3c724485139c8893e82e0fb07e6e"
+MIN_STAKE = 1
 MAX_STAKE = 500000000
-
+T_PLAYER = 60*1
+T_GAME = 60*1
+PAYER = "583bc2e6fa0a84c881e5ae21a3a74c213e2ced902b3be64b268a3d007cd9ee9a"
 #DB
 R_HOST='localhost'
 R_PORT=6379
@@ -28,7 +33,7 @@ The game "Gulag" is a high\-stakes multiplayer game where one player, known as t
 
 3\. *Deposit Phase*: After joining, each player has 4 minutes to deposit the required amount of tokens as specified by the Gulag Creator\. If a player fails to make the deposit within this timeframe, they are automatically kicked out of the game, and their slot may become available for another player to take\.
 
-4\. *Game Start*: The game officially begins once all players have made their deposits\. At this point, the total prize pool consists of the sum of all players' deposits, minus a 1\.0% fee\.
+4\. *Game Start*: The game officially begins once all players have made their deposits\. At this point, the total prize pool consists of the sum of all players' deposits, minus a 1\.5% fee\.
 
 5\. *Winner Selection*: The game randomly selects one of the participating players as the winner\. This player receives the entire prize pool, which is the sum of all deposits after the fee deduction\.
 

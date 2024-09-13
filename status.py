@@ -44,8 +44,9 @@ async def show_status(game_id: int, context: ContextTypes.DEFAULT_TYPE, chat_id:
         if results[0][i]:
             count = count + 1
 
-    status = results[0][6]
-    stake = results[0][5]
+    status = int(results[0][6])
+    stake = int(results[0][5])
+    stat = "No Data"
     if status == 9:
         stat = "Not paid"
     elif status == 1:
@@ -67,7 +68,7 @@ async def show_status(game_id: int, context: ContextTypes.DEFAULT_TYPE, chat_id:
         time = "Timer not Started"
     else:
         time = f"{left} seconds"
-    msg = f"<b>Status of the Gulag #{game_id}</b>\n\n\nStatus: {stat}\nStake: {stake}\nPot to Win: {stake*count*0.99}\nPlayers: {count}/5\nTime to start: {time}\nWinner: {winner}\n\n\nTo see and manage your games click 'My Gulags' from buttons below."
+    msg = f"<b>Status of the Gulag #{game_id}</b>\n\n\nStatus: {stat}\nStake: {stake}\nPot to Win: {stake*count}\nPlayers: {count}/5\nTime to start: {time}\nWinner: {winner}\n\n\nTo see and manage your games click 'My Gulags' from buttons below."
     await context.bot.send_message(chat_id=chat_id, text=msg, parse_mode='HTML', reply_markup=reply_markup)
     r.delete(chat_id)
 
@@ -92,7 +93,7 @@ async def show_games_pending(user_id: int, context: ContextTypes.DEFAULT_TYPE):
     for r in results:
         kb.append(get_kb(r[0]))
 
-        stake = r[1]
+        stake = int(r[1])
         count = 0
         for i in range(2,7):
             if r[i]:
@@ -104,7 +105,7 @@ async def show_games_pending(user_id: int, context: ContextTypes.DEFAULT_TYPE):
         else:
             time = f"{left} seconds"
 
-        msg += f"<b>Gulag #{r[0]}</b>\n\tStake: {stake}\n\tPot to Win: {stake*count*0.99}\n\tPlayers: {count}/5\n\tTime to start: {time}\n\n\n"
+        msg += f"<b>Gulag #{r[0]}</b>\n\tStake: {stake}\n\tPot to Win: {stake*count}\n\tPlayers: {count}/5\n\tTime to start: {time}\n\n\n"
         reply = InlineKeyboardMarkup(kb)
 
     await context.bot.sendMessage(chat_id=user_id, text=msg, reply_markup=reply, parse_mode='HTML')
@@ -122,7 +123,7 @@ async def show_games_canceled(user_id: int, context: ContextTypes.DEFAULT_TYPE):
 
     msg = "<b>Canceled Gulags:</b>\n\n"
     for r in results:
-        stake = r[1]
+        stake = int(r[1])
         count = 0
         for i in range(2,7):
             if r[i]:
@@ -147,13 +148,13 @@ async def show_games_won(user_id: int, context: ContextTypes.DEFAULT_TYPE):
 
     msg = "<b>Won Gulags:</b>\n\n"
     for r in results:
-        stake = r[1]
+        stake = int(r[1])
         count = 0
         for i in range(2,7):
             if r[i]:
                 count = count + 1
 
-        msg += f"<b>Gulag #{r[0]}</b>\n\tStake: {stake}\n\tPlayers: {count}/5\n\tPot: {stake*count*0.99} $BOMBO\n\n\n"
+        msg += f"<b>Gulag #{r[0]}</b>\n\tStake: {stake}\n\tPlayers: {count}/5\n\tPot: {stake*count} $BOMBO\n\n\n"
     reply = [
         [InlineKeyboardButton("🔙 Go Back",callback_data=f'back-1')]
     ]
@@ -172,7 +173,7 @@ async def show_games_lost(user_id: int, context: ContextTypes.DEFAULT_TYPE):
 
     msg = "<b>Lost Gulags:</b>\n\n"
     for r in results:
-        stake = r[1]
+        stake = int(r[1])
         count = 0
         for i in range(2,7):
             if r[i]:

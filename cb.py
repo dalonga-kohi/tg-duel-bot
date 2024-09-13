@@ -1,6 +1,7 @@
+import time
 from telegram import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
-from config import REPLY_DUEL, REPLY_GAME_END, REPLY_START, RULES
+from config import REPLY_DUEL, REPLY_GAME_END, REPLY_START, RULES, T_GAME
 from config import MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT
 import redis
 from solders.keypair import Keypair # type: ignore
@@ -45,11 +46,27 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         ]
 
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await context.bot.send_message(chat_id=chat_id, text="<b>You are withdrawing whole balance from your account(There is no way back if you enter the address)</b>\n\nEnter your SOL wallet address:", parse_mode='HTML', reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=chat_id, text="<b>You are withdrawing refound balance from your account(There is no way back if you enter the address)</b>\n\nEnter your SOL wallet address:", parse_mode='HTML', reply_markup=reply_markup)
+    elif arg == "withd":
+        status = r.get(user_id)
+
+        if status:
+            await context.bot.send_message(chat_id=chat_id, text='You have started another task before make sure you are not currently joining to some gulag or creating one.')
+            return
+
+        r.set(user_id, "WITHD")
+        keyboard = [
+            [InlineKeyboardButton("❌ Cancel", callback_data=f'canaccount-1')],
+        ]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await context.bot.send_message(chat_id=chat_id, text="<b>You are withdrawing whole balance from your prize pool(There is no way back if you enter the address)</b>\n\nEnter your SOL wallet address:", parse_mode='HTML', reply_markup=reply_markup)
+
     elif arg == 'canaccount':
         status = r.get(user_id)
 
-        if not status or status != 'WD':
+        if not status or (status != 'WD' and status != 'WITHD'):
+            print(status, "not status")
             return
 
         r.delete(user_id)
@@ -154,20 +171,28 @@ def check_balance(pub_key: str) -> float:
     # token_balance_response = client.get_token_account_balance(sender_token_account)
     # token_balance = token_balance_response
     pub_key = Pubkey.from_string(pub_key)
+    for attempt in range(2):
+        try:
+            balance = client.get_balance(pub_key)
+            print(f"Address: {pub_key}")
+            print(f"SOL Balance: {balance.value / 1e9} SOL")
+            token_accounts = client.get_token_accounts_by_owner(pub_key, TokenAccountOpts(mint=bombo_mint_address))
+            if not token_accounts.value:
+                token_balance = 0
+            else:
+                token_balance = client.get_token_account_balance(token_accounts.value[0].pubkey).value.amount
+                if not token_balance:
+                    token_balance = 0
+                token_balance = float(token_balance)/ 1e9
 
-    balance = client.get_balance(pub_key)
-    print(f"SOL Balance: {balance.value / 1e9} SOL")
-    token_accounts = client.get_token_accounts_by_owner(pub_key, TokenAccountOpts(mint=bombo_mint_address))
-    if not token_accounts.value:
-        token_balance = 0
-    else:
-        token_balance = client.get_token_account_balance(token_accounts.value[0].pubkey).value.amount
-        if not token_balance:
-            token_balance = 0
+            print(f'BOMBO Balance: {token_balance} $BOMBO')
 
-    print(f'BOMBO Balance: {token_balance} $BOMBO')
+            return token_balance
+        except:
+            print("Failed to retrive balance")
+            time.sleep(1)
+    return 0
 
-    return int(token_balance)
 
 
 
@@ -228,9 +253,10 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, update, co
         return
 
     pub_key = myresult[0][0]
+    await context.bot.send_message(chat_id=chat_id, text='Looking for your account details... 🔍')
     balance = check_balance(pub_key)
 
-    if balance != 0:
+    if int(balance) != int(stake):
         if status == 'create':
             keyboard = [
                 [
@@ -248,7 +274,7 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, update, co
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        await context.bot.send_message(chat_id=chat_id, text=f'Current balance of the deposit address is <strong>{balance} $BOMBO</strong>.\nSadly it is not enough 😞\n\n\nYour deposit address is:\n<code class="monospace-text">{pub_key}</code>\n \n \nSend EXACTLY <b>{stake} $BOMBO</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', parse_mode='HTML', reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=chat_id, text=f'Current balance of the deposit address is <strong>{balance} $BOMBO</strong>.\nSadly it is not correct 😞\n\n\nYour deposit address is:\n<code class="monospace-text">{pub_key}</code>\n \n \nSend EXACTLY <b>{stake} $BOMBO</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', parse_mode='HTML', reply_markup=reply_markup)
         return
 
     keyboard = [
@@ -272,6 +298,16 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, update, co
         if p:
             count = count + 1
 
+    print(f"Count: {count}")
+
+    current_jobs = context.job_queue.get_jobs_by_name(f"start-{game_id}")
+
+    if not current_jobs and count > 1:
+        await set_start_game_timer(update=update, context=context, due=T_GAME, text="5 min timer start", job_name=f'start-{game_id}', game_id=game_id)
+        print(f"CB: {game_id}")
+        await send_group_msg(msg_type=MsgType.BEGIN_TIMER, context=context, user_id=user_id, game_id=game_id, stake=stake)
+
+
     mydb.commit()
 
     if g_status == 9:
@@ -289,7 +325,8 @@ async def show_account(user_id: int, context: ContextTypes.DEFAULT_TYPE):
     mydb.commit()
     keyboard = [
         [
-        InlineKeyboardButton("🏦 Withdraw", callback_data=f'wd-1'),
+        InlineKeyboardButton("🏦 Withdraw", callback_data=f'withd-1'),
+        InlineKeyboardButton("🔃 Withdraw Refound", callback_data=f'wd-1'),
         InlineKeyboardButton("🔙 Go back", callback_data=f'back-1'),
         ],
     ]
@@ -297,9 +334,8 @@ async def show_account(user_id: int, context: ContextTypes.DEFAULT_TYPE):
 
     mycursor = mydb.cursor()
 
-    mycursor.execute(f"SELECT pub_key, lost, won, total FROM accounts WHERE user_id={user_id}")
+    mycursor.execute(f"SELECT pub_key, lost, won, total, withdraw FROM accounts WHERE user_id={user_id}")
     results = mycursor.fetchall()
-
     if not results:
         keypair = Keypair()
         public_key = keypair.pubkey()
@@ -308,21 +344,22 @@ async def show_account(user_id: int, context: ContextTypes.DEFAULT_TYPE):
         sql = "INSERT INTO accounts(user_id, pub_key,priv_key) VALUES (%s,%s,%s)"
         val = (user_id, f'{public_key}', f'{private_key.hex()}')
         mycursor.execute(sql, val)
+        mydb.commit()
 
         lost = 0
         won = 0
         total = 0
         balance = 0
-
+        ref_bal = 0
     else:
         public_key = results[0][0]
         lost = results[0][1]
         won = results[0][2]
         total = results[0][3]
-        balance = check_balance(public_key)
+        balance = results[0][4]
 
+        ref_bal = check_balance(public_key)
 
-
-    msg = f"🏆 Gulags Won: {won}\t\t 💀 Gulags Lost: {lost}\n\nTotal Prize: {total} $BOMBO\n\nFunds to withdraw: {balance} $BOMBO"
+    msg = f"🏆 Gulags Won: {won}\t\t 💀 Gulags Lost: {lost}\n\nTotal Prize: {total} $BOMBO\n\nFunds to withdraw: {balance} $BOMBO\n\nFunds on refound account: {ref_bal} $BOMBO"
 
     await context.bot.send_message(chat_id=user_id, text=msg, reply_markup=reply_markup)

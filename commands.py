@@ -1,7 +1,7 @@
 import redis
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
-from config import MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, REPLY_CANCEL, REPLY_DUEL, REPLY_JOIN, REPLY_NO_FREE, REPLY_NO_JOIN, REPLY_STATUS, REPLY_START
+from config import BOT_USERNAME, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, REPLY_CANCEL, REPLY_DUEL, REPLY_JOIN, REPLY_NO_FREE, REPLY_NO_JOIN, REPLY_STATUS, REPLY_START, T_GAME, T_PLAYER
 import mysql.connector
 from solders.keypair import Keypair # type: ignore
 from group import send_group_msg
@@ -17,7 +17,20 @@ mydb = mysql.connector.connect(
 )
 
 
+async def reject_cmd(update: Update):
+    kb = [
+        [InlineKeyboardButton(text="Create new Gulag", url=f"https://t.me/{BOT_USERNAME}?start")]
+    ]
+    await update.message.reply_text('You can access all bot functions via private chat. Hit button below to see what Gulag bot has to offer.', parse_mode="HTML", reply_markup=InlineKeyboardMarkup(kb))
+    return
+
 async def handle_cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    type = update.message.chat.type
+
+    if type != "private":
+        await reject_cmd(update)
+        return
+
     if context.args:
         user_id = update.message.from_user.id
         status = r.get(user_id)
@@ -45,6 +58,12 @@ async def handle_cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_markdown_v2(REPLY_START, reply_markup=reply_markup)
 
 async def handle_cmd_duel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    type = update.message.chat.type
+
+    if type != "private":
+        await reject_cmd(update)
+        return
+
     user_id = update.message.from_user.id
     status = r.get(user_id)
 
@@ -60,6 +79,12 @@ async def handle_cmd_duel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(REPLY_DUEL, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='HTML')
 
 async def handle_cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    type = update.message.chat.type
+
+    if type != "private":
+        await reject_cmd(update)
+        return
+
     user_id = update.message.from_user.id
     status = r.get(user_id)
     if status:
@@ -70,6 +95,12 @@ async def handle_cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(REPLY_STATUS)
 
 async def handle_cmd_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    type = update.message.chat.type
+
+    if type != "private":
+        await reject_cmd(update)
+        return
+
     user_id = update.message.from_user.id
     print(f'Join by user {user_id}')
     status = r.get(user_id)
@@ -88,6 +119,7 @@ async def handle_cmd_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(REPLY_JOIN, reply_markup=reply_markup)
 
 async def join(update, game_id: int, user_id: int, context: ContextTypes.DEFAULT_TYPE):
+    r.set(user_id, 'JOINING')
     mydb.commit()
     mycursor = mydb.cursor()
 
@@ -206,11 +238,5 @@ async def join(update, game_id: int, user_id: int, context: ContextTypes.DEFAULT
     await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo join send {myresult[6]} $BOMBO to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.\n\n You have 4 minutes to confirm the deposit.', reply_markup=reply_markup, parse_mode='HTML')
 
     r.set(user_id, "DEPOSIT")
-    current_jobs = context.job_queue.get_jobs_by_name(f"start-{game_id}")
 
-    if not current_jobs:
-            await set_start_game_timer(update=update, context=context, due=300, text="5 min timer start", job_name=f'start-{game_id}', game_id=game_id)
-            print(f"CB: {game_id}")
-            await send_group_msg(msg_type=MsgType.BEGIN_TIMER, context=context, user_id=user_id, game_id=game_id, stake=myresult[6])
-
-    await set_player_timer(update=update, context=context, due=240, text=None, job_name=f'deposit-{user_id}-{game_id}')
+    await set_player_timer(update=update, context=context, due=T_PLAYER, text=None, job_name=f'deposit-{user_id}-{game_id}')

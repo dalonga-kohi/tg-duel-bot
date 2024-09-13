@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 from datetime import timedelta
 import redis
-from config import R_HOST, R_PORT, MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_DB
+from config import R_HOST, R_PORT, MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_DB, T_PLAYER
 import mysql.connector
 from datetime import datetime, timezone
 
@@ -19,7 +19,7 @@ mydb = mysql.connector.connect(
 
 async def check_full_players(game_id: str, context) -> None:
     players = 0
-
+    mydb.commit()
     mycursor = mydb.cursor()
     mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status,stake FROM games WHERE game_id={game_id}")
     myresult = mycursor.fetchall()
@@ -42,10 +42,13 @@ async def send_game_warning(context: ContextTypes.DEFAULT_TYPE) -> None:
     print(game_id)
 
     players = 0
-
+    mydb.commit()
     mycursor = mydb.cursor()
     mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status,stake FROM games WHERE game_id={game_id}")
     myresult = mycursor.fetchall()
+
+    if myresult[0][5] == 4:
+        return
 
     for x in range(0,5):
         try:
@@ -77,10 +80,13 @@ async def player_alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     status = r.get(user_id)
 
     if status == "DEPOSIT":
+        mydb.commit()
         mycursor = mydb.cursor()
-        mycursor.execute(f"SELECT p1, p2, p3, p4, p5 FROM games WHERE game_id={game_id}")
+        mycursor.execute(f"SELECT p1, p2, p3, p4, p5,status FROM games WHERE game_id={game_id}")
         myresult = mycursor.fetchone()
 
+        if myresult[0][5] == 4:
+            return
 
         player_removed = False
         p_index=0
@@ -106,7 +112,8 @@ async def player_alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
             r.delete(user_id)
 
         else:
-            await context.bot.send_message(job.chat_id, text=f"Error: Could not remove player {username} from the game.")
+            # await context.bot.send_message(job.chat_id, text=f"Error: Could not remove player {username} from the game.")
+            pass
 
     else:
         print(f"Player {user_id} payed the deposit")
@@ -115,10 +122,15 @@ async def player_alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
 async def get_players_with_deposit(game_id) -> int:
     players = 0
 
+    mydb.commit()
     mycursor = mydb.cursor()
-    mycursor.execute(f"SELECT p1,p2,p3,p4,p5 FROM games WHERE game_id={game_id}")
+    mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status FROM games WHERE game_id={game_id}")
     myresult = mycursor.fetchall()
+    if not myresult:
+        return 0
 
+    if myresult[0][5] == 4:
+        return 0
     for x in myresult[0][:5]:
         try:
             print(f"Check depo: {x}")
@@ -136,6 +148,10 @@ async def game_alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = job.data["chat_id"]
 
     players = await get_players_with_deposit(game_id)
+
+    if players == 0:
+        return
+
     print(f"Players with deposit: {players}")
     if players >= 2:
         await start_game(game_id, context)
@@ -147,8 +163,8 @@ async def game_alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
         if not r:
             return
 
-        for p in r[0]:
-            await cancel(chat_id=chat_id, context=context, game_id=game_id, user_id=p)
+        owner = r[0]
+        await cancel(chat_id=chat_id, context=context, game_id=game_id, user_id=owner)
 
 def get_time_left_in_job(job_name: str, context: ContextTypes.DEFAULT_TYPE) -> int | None:
     current_jobs = context.job_queue.get_jobs_by_name(job_name)
@@ -180,7 +196,7 @@ async def send_player_warning(context: ContextTypes.DEFAULT_TYPE) -> None:
 
     print(f"User {user_id} has 30s to confirm deposit")
 
-    await context.bot.send_message(job.chat_id, text=f"Warning: You have 30 seconds left to confirm your deposit!")
+    # await context.bot.send_message(job.chat_id, text=f"Warning: You have 30 seconds left to confirm your deposit!")
 
 
 def remove_job_if_exists(name: str, context: ContextTypes.DEFAULT_TYPE) -> bool:
@@ -238,7 +254,7 @@ async def set_player_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, d
 
     print(f"TIME: {time_left}")
 
-    if time_left and time_left < 240:
+    if time_left and time_left < T_PLAYER:
         await modify_game_timer(update, context, new_due=due, job_name=f"start-{game_id}", text="Game queue will be increased to 4 mins due to player deposit")
 
 

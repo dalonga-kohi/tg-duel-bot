@@ -8,7 +8,8 @@ import mysql.connector
 import random
 from solders.keypair import Keypair # type: ignore
 from solana.rpc.api import Client
-from cb import button
+from cb import button, show_account
+from refounds import wd_total
 from status import show_status
 
 sol_client = Client("https://api.mainnet-beta.solana.com")
@@ -24,6 +25,7 @@ async def handle_error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'Update {update} caused an error: \n {context.error}')
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    unproc = update.message.text.strip()
     proc: str = update.message.text.lower().strip()
     user_id = update.message.from_user.id
     type = update.message.chat.type
@@ -48,7 +50,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ###########################################
 
     if status == 'WD':
-        address = proc
+        address = unproc
         res = await withdraw(address, user_id)
 
         if not res:
@@ -59,6 +61,30 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup = InlineKeyboardMarkup(keyboard)
             await update.message.reply_text("This is not a valid SOL wallet or you have no funds to withdraw\nPlease, try again:" ,reply_markup=reply_markup)
             return
+        else:
+            r.delete(user_id)
+            await update.message.reply_text("✅ Successful Transaction")
+            await update.message.reply_text(f'Transaction Signature: <code class="monospace-text">{res}</code>', parse_mode="HTML")
+            await show_account(user_id, context)
+
+    elif status == 'WITHD':
+        address = unproc
+        print("procced")
+        res = await wd_total(address, user_id)
+
+        if not res:
+            keyboard = [
+                [InlineKeyboardButton("❌ Cancel", callback_data=f'canaccount-1')],
+            ]
+
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await update.message.reply_text("This is not a valid SOL wallet or you have no funds to withdraw\nPlease, try again:" ,reply_markup=reply_markup)
+            return
+        else:
+            r.delete(user_id)
+            await update.message.reply_text("✅ Successful Transaction")
+            await update.message.reply_text(f'Transaction Signature: <code class="monospace-text">{res}</code>', parse_mode="HTML")
+            await show_account(user_id, context)
 
 
     elif status == 'SETTING':
