@@ -30,7 +30,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
     type = update.message.chat.type
     stake = 0
-    print(f'User {user_id} sends a message({type})' )
+    print(f'User {user_id} sends a message({type}) on {update.message.chat.id}' )
 
 
     if type != 'private':

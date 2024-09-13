@@ -13,6 +13,7 @@ from solana.transaction import Transaction
 from spl.token.constants import TOKEN_PROGRAM_ID
 from solana.rpc.api import Client
 from spl.token.client import Token
+from telegram.ext import ContextTypes
 
 bombo_mint_address = Pubkey.from_string("D3pmeo4MrV2eWMJH3WybR4fnKdMiSS4DrYHqdYNNjQU5")
 
@@ -26,7 +27,11 @@ mydb = mysql.connector.connect(
 cursor = mydb.cursor()
 client = Client("https://api.mainnet-beta.solana.com")
 
-async def start_game(game_id: int, context):
+async def result(context: ContextTypes.DEFAULT_TYPE):
+    data = context.job.data
+
+    game_id = data["id"]
+
     mydb.commit()
     sql = f"SELECT p1,p2,p3,p4,p5, stake FROM games WHERE game_id='{game_id}'"
     cursor.execute(sql)
@@ -52,17 +57,6 @@ async def start_game(game_id: int, context):
     print(players)
 
     print(f"Winner {win_id}")
-
-    await send_group_msg(msg_type=MsgType.GAME, context=context, game_id=game_id, count=count, stake=stake)
-    time.sleep(3)
-
-    await context.bot.send_photo(chat_id=CHAT_ID, photo="res/game1.jpg")
-    time.sleep(3)
-    await context.bot.send_photo(chat_id=CHAT_ID, photo="res/game2.jpg")
-    time.sleep(3)
-    await context.bot.send_photo(chat_id=CHAT_ID, photo="res/game3.jpg")
-    time.sleep(3)
-
     await send_group_msg(msg_type=MsgType.RESULT, context=context, game_id=game_id, count=count, stake=stake, user_id=win_id)
 
     sql = f"UPDATE games SET status=3, winner='{win_id}' WHERE game_id='{game_id}'"
@@ -93,103 +87,13 @@ async def start_game(game_id: int, context):
         cursor.execute(sql)
         mydb.commit()
 
-    cursor.execute("SELECT priv_key FROM config WHERE name='payer'")
-    p_priv = cursor.fetchall()
-
-    if not p_priv:
-        payer = Keypair.from_seed(base58.b58decode(hex_to_base58(PAYER)))
-    else:
-        payer = Keypair.from_seed(base58.b58decode(hex_to_base58(p_priv[0][0])))
-
-    token = Token(client, bombo_mint_address, TOKEN_PROGRAM_ID, payer)
-    print("TRYING")
-    cursor.execute("SELECT priv_key FROM config WHERE name='vault'")
-    p_priv = cursor.fetchall()
-
-    if not p_priv:
-        recipient = Keypair.from_seed(base58.b58decode(hex_to_base58(VAULT_PRIV)))
-    else:
-        recipient = Keypair.from_seed(base58.b58decode(hex_to_base58(p_priv[0][0])))
-
-
-    try:
-        recipient_token_account = get_associated_token_address(recipient.pubkey(), bombo_mint_address)
-    except Exception as ex:
-        print(ex)
-        try:
-            recipient_token_account = token.create_associated_token_account(owner=recipient.pubkey(), skip_confirmation=False, recent_blockhash=None)
-        except Exception as ex:
-            print(ex)
-            print('No funds')
-    fee = 0
-
     for x in players:
         print(f"Player : {x}")
-        mydb.commit()
-        sql = f"SELECT pub_key, priv_key FROM wallets WHERE user_id='{x}' AND game_id='{game_id}'"
-        cursor.execute(sql)
-        res = cursor.fetchall()
-        print(f"CONN")
-        if not res:
-            continue
-
-        priv = hex_to_base58(res[0][1])
-        sender = Keypair.from_seed(base58.b58decode(priv))
-        print(f"KEYS")
-
-        try:
-            sender_token_account = get_associated_token_address(sender.pubkey(),bombo_mint_address)
-        except:
-            try:
-                sender_token_account = token.create_associated_token_account(owner=sender.pubkey(), skip_confirmation=False, recent_blockhash=None)
-            except:
-                print('No funds for creation')
-
-        print("SENDER")
-        try:
-            amount = token.get_balance(sender_token_account).value.amount
-        except:
-            amount = 0
-
-        token_balance = float(amount) /1e9
-        print(f"Balance: {token_balance}")
-
-        time.sleep(10)
-        if token_balance > 0:
-            for a in range(10):
-                try:
-                    block = get_latest_blockhash_with_retries(client)
-                    transaction = Transaction()
-                    instruction = transfer(
-                        TransferParams(
-                        amount=int(float(token_balance)*1000000000),
-                        dest=recipient_token_account,
-                        owner=sender.pubkey(),
-                        source=sender_token_account,
-                        program_id=TOKEN_PROGRAM_ID,
-                        )
-                    )
-                    transaction.add(instruction)
-                    transaction.fee_payer = payer.pubkey()
-                    transaction.recent_blockhash = block
-                    transaction.sign_partial(payer)
-                    transaction.sign_partial(sender)
-
-                    signature = client.send_transaction(transaction,sender,payer, recent_blockhash=block)
-
-                    print(f"Transaction Signature: {signature}")
-
-                    fee += int(float(token_balance)*1000000000)
-                    break
-                except Exception as ex:
-                    print(ex)
-                    print('Transit retry')
-                    time.sleep(3)
-
-
 
         if x == win_id:
             continue
+
+        mydb.commit()
 
         sql = f"SELECT lost from accounts WHERE user_id='{x}'"
         cursor.execute(sql)
@@ -208,104 +112,56 @@ async def start_game(game_id: int, context):
                 cursor.execute(sql)
                 mydb.commit()
         except:
+            print("Unable to add lose")
             pass
 
-    sender_token_account = recipient_token_account
-    cursor.execute("SELECT pub_key, val FROM config WHERE name='fee1'")
-    fee_add = cursor.fetchall()
 
-    if not fee_add:
-        fee_pub = FEE_ADDRESS
-        per = 0.0125
-    else:
-        per = float(fee_add[0][1])
-        fee_pub = fee_add[0][0]
-    try:
-        try:
-            recipient_token_account = get_associated_token_address(Pubkey.from_string(fee_pub), bombo_mint_address)
-        except:
-            recipient_token_account = token.create_associated_token_account(owner=Pubkey.from_string(fee_pub), skip_confirmation=False, recent_blockhash=None)
-    except:
-        print('No Funds for creation')
-
-    time.sleep(10)
-
-    for a in range(5):
-        try:
-            block = get_latest_blockhash_with_retries(client)
-            print(f'Fee: {int(fee*per)}')
-            transaction = Transaction()
-            instruction = transfer(
-                TransferParams(
-                amount=int(fee*per),
-                dest=recipient_token_account,
-                owner=recipient.pubkey(),
-                source=sender_token_account,
-                program_id=TOKEN_PROGRAM_ID,
-                )
-            )
-            transaction.add(instruction)
-            transaction.fee_payer = payer.pubkey()
-            transaction.recent_blockhash = block
-            transaction.sign_partial(payer)
-            transaction.sign_partial(recipient)
-            print('HERE')
-            signature = client.send_transaction(transaction,recipient,payer, recent_blockhash=block)
-
-            print(f"Transaction Signature: {signature}")
-            break
-        except Exception as ex:
-            print(ex)
-            print('NO FEE')
-            time.sleep(2)
+async def ph(context: ContextTypes.DEFAULT_TYPE):
+    job = context.job
+    num = job.data['number']
+    await context.bot.send_photo(chat_id=CHAT_ID, photo=f"res/game{num}.jpg")
+    if num < 3:
+        job_data = {
+            "number": int(num)+1,
+            "id": job.data["id"]
+        }
+        context.job_queue.run_once(ph, 2, data=job_data)
+        return
+    job_data = {
+        "number": int(num)+1,
+        "id": job.data["id"]
+    }
+    context.job_queue.run_once(result, 2, data=job_data)
 
 
-    cursor.execute("SELECT pub_key, val FROM config WHERE name='fee2'")
-    fee_add = cursor.fetchall()
 
-    if not fee_add:
-        fee_pub = FEE_ADDRESS
-        per = 0.0025
-    else:
-        per = float(fee_add[0][1])
-        fee_pub = fee_add[0][0]
-    try:
-        try:
-            recipient_token_account = get_associated_token_address(Pubkey.from_string(fee_pub), bombo_mint_address)
-        except:
-            recipient_token_account = token.create_associated_token_account(owner=Pubkey.from_string(fee_pub), skip_confirmation=False, recent_blockhash=None)
-    except:
-        print('No Funds for creation')
+async def start_game(game_id: int, context:  ContextTypes.DEFAULT_TYPE):
+    mydb.commit()
+    sql = f"SELECT p1,p2,p3,p4,p5, stake FROM games WHERE game_id='{game_id}'"
+    cursor.execute(sql)
+    res = cursor.fetchall()
 
-    time.sleep(8)
-    for a in range(5):
-        try:
-            block = get_latest_blockhash_with_retries(client)
-            print(f'Fee: {int(fee*per)}')
-            transaction = Transaction()
-            instruction = transfer(
-                TransferParams(
-                amount=int(fee*per),
-                dest=recipient_token_account,
-                owner=recipient.pubkey(),
-                source=sender_token_account,
-                program_id=TOKEN_PROGRAM_ID,
-                )
-            )
-            transaction.add(instruction)
-            transaction.fee_payer = payer.pubkey()
-            transaction.recent_blockhash = block
-            transaction.sign_partial(payer)
-            transaction.sign_partial(recipient)
-            print('HERE')
-            signature = client.send_transaction(transaction,recipient,payer, recent_blockhash=block)
+    if not res:
+        return
 
-            print(f"Transaction Signature: {signature}")
-            break
-        except Exception as ex:
-            print(ex)
-            print('NO FEE')
-            time.sleep(2)
+    r = res[0]
+
+    players = []
+    count = 0
+    stake = int(r[5])
+    for i in range(0,5):
+        if r[i]:
+            players.append(int(r[i]))
+            count += 1
+    if count <= 0:
+        return
+
+    await send_group_msg(msg_type=MsgType.GAME, context=context, game_id=game_id, count=count, stake=stake)
+    job_data = {
+        "number": 1,
+        "id": game_id
+    }
+    context.job_queue.run_once(ph, 2, data=job_data)
 
 
 def check_balance(pub_key: str) -> float:
