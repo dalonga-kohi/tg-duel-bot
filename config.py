@@ -16,7 +16,7 @@ R_PORT=6379
 MYSQL_HOST='localhost'
 MYSQL_DB='duel_test'
 MYSQL_USER='root'
-MYSQL_PASS=''
+MYSQL_PASS='root'
 
 CMD_START = 'start'
 CMD_DUEL = 'gulag'
@@ -39,7 +39,7 @@ The game "Gulag" is a high\-stakes multiplayer game where one player, known as t
 
 '''
 REPLY_GAME_END = "The gulag has already ended.\n\nYour deposit has been transfered to your account address. \nTo withdraw select 'My Account' and then 'Withdraw'"
-REPLY_START = "Welcome to the game\! I'm the gulag Bot 🤖⚔️\."+'\n\n'+'"Gulag" is a multiplayer game where one player creates a new game with four open slots and sets a required token deposit\. Other players join and must deposit the set amount within a limited time\. If a player fails to deposit, they are kicked out of the game\. Once all players have made their deposits, a winner is randomly selected to win the total prize pool, minus a 1\.0% fee\.' + "\n\nTo begin just select one of the commands 😘"
+REPLY_START = "Welcome to the game\! I'm the gulag Bot 🤖⚔️\."+'\n\n'+'"Gulag" is a multiplayer game where one player creates a new game with four open slots and sets a required token deposit\. Other players join and must deposit the set amount within a limited time\. If a player fails to deposit, they are kicked out of the game\. Once all players have made their deposits, a winner is randomly selected to win the total prize pool, minus a 1\.5% fee\.' + "\n\nTo begin just select one of the commands 😘"
 REPLY_DUEL = f'Please provide the stake of the gulag that ranges from\n <b>{MIN_STAKE} to {MAX_STAKE}</b> $BOMBO tokens:'
 REPLY_CANCEL = '⛑️'
 REPLY_STATUS = 'To see a status enter a gulag id:'

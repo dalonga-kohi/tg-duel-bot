@@ -30,10 +30,10 @@ def hex_to_base58(hex_string):
     base58_str = base58.b58encode(bytes_str)
     return base58_str.decode("UTF-8")
 
-@repeat(every(2).minutes)
+@repeat(every(1).minute)
 def vault():
     mydb.commit()
-    cursor.execute("SELECT pub_key, priv_key FROM wallets WHERE date > ADDDATE(NOW(), INTERVAL -1 DAY)")
+    cursor.execute("SELECT pub_key, priv_key FROM wallets JOIN games ON games.game_id=wallets.game_id WHERE wallets.date > ADDDATE(NOW(), INTERVAL -1 DAY) AND status<>1")
     res = cursor.fetchall()
 
     cursor.execute("SELECT priv_key FROM config WHERE name='payer'")
@@ -86,7 +86,7 @@ def vault():
 
         token_balance = float(amount) /1e9
         print(f"Balance: {token_balance}")
-        if token_balance < 0:
+        if token_balance <= 0:
             continue
 
         try:

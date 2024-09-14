@@ -32,11 +32,16 @@ async def check_full_players(game_id: str, context) -> None:
             pass
 
     if players == 5:
-        await start_game(game_id, context)
+	jobs = context.job_queue.get_jobs_by_name(f"start-{game_id}")
+        for j in jobs:
+            j.schedule_removal()
+	await start_game(game_id, context)
 
 async def send_game_warning(context: ContextTypes.DEFAULT_TYPE) -> None:
     job = context.job
-    chat_id = job.data["chat_id"]
+    for j in jobs:
+        j.schedule_removal()
+    await start_game(game_id, context)    chat_id = job.data["chat_id"]
     game_id = job.name.split("-")[2]
 
     print(game_id)
