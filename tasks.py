@@ -33,7 +33,7 @@ def hex_to_base58(hex_string):
 @repeat(every(1).minute)
 def vault():
     mydb.commit()
-    cursor.execute("SELECT pub_key, priv_key FROM wallets JOIN games ON games.game_id=wallets.game_id WHERE wallets.date > ADDDATE(NOW(), INTERVAL -1 DAY) AND status<>1")
+    cursor.execute("SELECT pub_key, priv_key, game_id, status, user_id FROM wallets JOIN games ON games.game_id=wallets.game_id WHERE wallets.date > ADDDATE(NOW(), INTERVAL -1 DAY) AND (status=3 OR status=4)")
     res = cursor.fetchall()
 
     cursor.execute("SELECT priv_key FROM config WHERE name='payer'")
@@ -112,7 +112,19 @@ def vault():
 
             print(f"Transaction Signature: {signature}")
 
-            time.sleep(5)
+            if int(row[3]) == 3:
+                cursor.execute(f"SELECT winner FROM games WHERE game_id={row[2]}")
+                win = cursor.fetchall()
+                win_id = win[0][0]
+                cursor.execute(f'UPDATE accounts SET total=total+{token_balance*0.985}, withdraw=withdraw+{token_balance*0.985} WHERE user_id="{win_id}"')
+                mydb.commit()
+            else:
+                cursor.execute(f'UPDATE accounts SET withdraw=withdraw+{token_balance*0.985} WHERE user_id="{row[4]}"')
+                mydb.commit()
+
+
+
+            time.sleep(2)
             cursor.execute("SELECT pub_key, val FROM config WHERE name='fee1'")
             fee_add = cursor.fetchall()
             if not fee_add:

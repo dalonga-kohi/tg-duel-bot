@@ -63,29 +63,9 @@ async def result(context: ContextTypes.DEFAULT_TYPE):
     cursor.execute(sql)
     mydb.commit()
 
-    sql = f"SELECT pub_key, priv_key, won, lost, total, withdraw FROM accounts WHERE user_id='{win_id}'"
+    sql = f"UPDATE accounts SET won=won+1 WHERE user_id='{win_id}'"
     cursor.execute(sql)
-    res = cursor.fetchall()
-    pot = stake*count*0.985
-
-    if not res:
-        keypair = Keypair()
-        public_key = keypair.pubkey()
-        private_key = keypair.secret()
-
-        sql = "INSERT INTO accounts(user_id, pub_key,priv_key, won, total) VALUES (%s,%s,%s, %s, %s)"
-        val = (win_id, f'{public_key}', f'{private_key.hex()}', 1, pot)
-        cursor.execute(sql, val)
-        mydb.commit()
-    else:
-
-        won = res[0][2]
-        lost = res[0][3]
-        total = res[0][4]
-        wd = pot + float(res[0][5])
-        sql = f"UPDATE accounts SET won={won+1},total={total+pot},withdraw={wd} WHERE user_id='{win_id}'"
-        cursor.execute(sql)
-        mydb.commit()
+    mydb.commit()
 
     for x in players:
         print(f"Player : {x}")
@@ -95,22 +75,10 @@ async def result(context: ContextTypes.DEFAULT_TYPE):
 
         mydb.commit()
 
-        sql = f"SELECT lost from accounts WHERE user_id='{x}'"
-        cursor.execute(sql)
-        res = cursor.fetchall()
-
         try:
-            if not res:
-                tmp = Keypair()
-                sql = "INSERT INTO accounts(user_id, pub_key,priv_key, lost) VALUES (%s,%s,%s, %s)"
-                val = (x, f'{tmp.pubkey()}', f'{tmp.secret.hex()}', 1)
-                cursor.execute(sql, val)
-                mydb.commit()
-            else:
-                print(f"Lost: {res[0][0]+1}")
-                sql = f"UPDATE accounts set lost={res[0][0] + 1} WHERE user_id='{x}'"
-                cursor.execute(sql)
-                mydb.commit()
+            sql = f"UPDATE accounts set lost=lost+1 WHERE user_id='{x}'"
+            cursor.execute(sql)
+            mydb.commit()
         except:
             print("Unable to add lose")
             pass

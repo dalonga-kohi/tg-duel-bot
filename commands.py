@@ -16,7 +16,7 @@ mydb = mysql.connector.connect(
     database=MYSQL_DB
 )
 
-
+cursor = mydb.cursor()
 async def reject_cmd(update: Update):
     kb = [
         [InlineKeyboardButton(text="Create new Gulag", url=f"https://t.me/{BOT_USERNAME}?start")]
@@ -30,6 +30,20 @@ async def handle_cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if type != "private":
         await reject_cmd(update)
         return
+
+    mydb.commit()
+    cursor.execute(f"SELECT * FROM accounts WHERE user_id='{update.message.from_user.id}'")
+    u = cursor.fetchall()
+
+    if not u:
+        keypair = Keypair()
+        public_key = keypair.pubkey()
+        private_key = keypair.secret()
+
+        val = (update.message.from_user.id, f'{public_key}', f'{private_key.hex()}')
+        sql = "INSERT INTO accounts(user_id, pub_key,priv_key) VALUES (%s,%s,%s)"
+        cursor.execute(sql, val)
+        mydb.commit()
 
     if context.args:
         user_id = update.message.from_user.id

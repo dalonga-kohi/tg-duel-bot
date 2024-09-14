@@ -18,24 +18,25 @@ mydb = mysql.connector.connect(
 )
 
 async def check_full_players(game_id: str, context) -> None:
-    players = 0
-    mydb.commit()
-    mycursor = mydb.cursor()
-    mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status,stake FROM games WHERE game_id={game_id}")
-    myresult = mycursor.fetchall()
+    pass
+    # players = 0
+    # mydb.commit()
+    # mycursor = mydb.cursor()
+    # mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status,stake FROM games WHERE game_id={game_id}")
+    # myresult = mycursor.fetchall()
 
-    for x in range(0,5):
-        try:
-            if myresult[0][x] and r.get(x) != "DEPOSIT":
-                players += 1
-        except:
-            pass
+    # for x in range(0,5):
+    #     try:
+    #         if myresult[0][x] and r.get(x) != "DEPOSIT":
+    #             players += 1
+    #     except:
+    #         pass
 
-    if players == 5:
-        jobs = context.job_queue.get_jobs_by_name(f"start-{game_id}")
-        for j in jobs:
-            j.schedule_removal()
-        await start_game(game_id, context)
+    # if players == 5:
+    #     jobs = context.job_queue.get_jobs_by_name(f"start-{game_id}")
+    #     for j in jobs:
+    #         j.schedule_removal()
+    #     await start_game(game_id, context)
 
 async def send_game_warning(context: ContextTypes.DEFAULT_TYPE) -> None:
     job = context.job

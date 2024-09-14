@@ -184,109 +184,110 @@ async def cancel(game_id: int, user_id: int, chat_id: int, context: ContextTypes
 
 
 async def refound(user_id: int, game_id:int) -> bool:
-    client = Client("https://api.mainnet-beta.solana.com")
-    mydb.commit()
-    mycursor.execute(f"SELECT pub_key, priv_key FROM wallets WHERE user_id={user_id} AND game_id={game_id}")
-    myresults = mycursor.fetchall()
-    print("Fetching...")
-    if not myresults:
-        return False
-    print("Fetched")
-    sender_priv_key = hex_to_base58(myresults[0][1])
-    sender = Keypair.from_seed(base58.b58decode(sender_priv_key))
-    sender_pub_key = sender.pubkey()
+    # client = Client("https://api.mainnet-beta.solana.com")
+    # mydb.commit()
+    # mycursor.execute(f"SELECT pub_key, priv_key FROM wallets WHERE user_id={user_id} AND game_id={game_id}")
+    # myresults = mycursor.fetchall()
+    # print("Fetching...")
+    # if not myresults:
+    #     return False
+    # print("Fetched")
+    # sender_priv_key = hex_to_base58(myresults[0][1])
+    # sender = Keypair.from_seed(base58.b58decode(sender_priv_key))
+    # sender_pub_key = sender.pubkey()
 
-    payer = Keypair.from_seed(base58.b58decode(hex_to_base58(PAYER)))
-    token = Token(client, bombo_mint_address, TOKEN_PROGRAM_ID, payer)
-    print(f"Payer: {payer.pubkey()}")
-    print("Initialized")
+    # payer = Keypair.from_seed(base58.b58decode(hex_to_base58(PAYER)))
+    # token = Token(client, bombo_mint_address, TOKEN_PROGRAM_ID, payer)
+    # print(f"Payer: {payer.pubkey()}")
+    # print("Initialized")
 
-    try:
-        sender_token_account = get_associated_token_address(sender.pubkey(), mint=bombo_mint_address)
-    except Exception as ex:
-        print(ex)
-        sender_token_account = token.create_associated_token_account(owner=sender.pubkey(), skip_confirmation=False, recent_blockhash=None)
-    print("SENDER")
-    mycursor.execute(f"SELECT pub_key FROM accounts WHERE user_id={user_id}")
-    myresults = mycursor.fetchall()
-    public_key = 0
+    # try:
+    #     sender_token_account = get_associated_token_address(sender.pubkey(), mint=bombo_mint_address)
+    # except Exception as ex:
+    #     print(ex)
+    #     sender_token_account = token.create_associated_token_account(owner=sender.pubkey(), skip_confirmation=False, recent_blockhash=None)
+    # print("SENDER")
+    # mycursor.execute(f"SELECT pub_key FROM accounts WHERE user_id={user_id}")
+    # myresults = mycursor.fetchall()
+    # public_key = 0
 
-    print("Fetching 2...")
+    # print("Fetching 2...")
 
-    if not myresults:
-        keypair = Keypair()
-        public_key = keypair.pubkey()
-        private_key = keypair.secret()
+    # if not myresults:
+    #     keypair = Keypair()
+    #     public_key = keypair.pubkey()
+    #     private_key = keypair.secret()
 
-        sql = "INSERT INTO accounts(user_id, pub_key,priv_key) VALUES (%s,%s,%s)"
-        val = (user_id, f'{public_key}', f'{private_key.hex()}')
-        mycursor.execute(sql, val)
-    else:
-        public_key = Pubkey.from_string(myresults[0][0])
+    #     sql = "INSERT INTO accounts(user_id, pub_key,priv_key) VALUES (%s,%s,%s)"
+    #     val = (user_id, f'{public_key}', f'{private_key.hex()}')
+    #     mycursor.execute(sql, val)
+    # else:
+    #     public_key = Pubkey.from_string(myresults[0][0])
 
-    print("KEYS obtained")
-    try:
-        recipient_token_account = get_associated_token_address(public_key, bombo_mint_address)
-    except Exception as ex:
-        print(ex)
-        recipient_token_account = token.create_associated_token_account(owner=public_key, skip_confirmation=False, recent_blockhash=None)
+    # print("KEYS obtained")
+    # try:
+    #     recipient_token_account = get_associated_token_address(public_key, bombo_mint_address)
+    # except Exception as ex:
+    #     print(ex)
+    #     recipient_token_account = token.create_associated_token_account(owner=public_key, skip_confirmation=False, recent_blockhash=None)
 
-    for a in range(5):
-        try:
-            amount = token.get_balance(sender_token_account).value.amount
-        except:
-            time.sleep(2)
-            continue
+    # for a in range(5):
+    #     try:
+    #         amount = token.get_balance(sender_token_account).value.amount
+    #     except:
+    #         time.sleep(2)
+    #         continue
 
-        if amount == 0:
-            time.sleep(2)
-            continue
-        else:
-            break
+    #     if amount == 0:
+    #         time.sleep(2)
+    #         continue
+    #     else:
+    #         break
 
-    token_balance = float(amount) /1e9
+    # token_balance = float(amount) /1e9
 
-    if token_balance <= 0:
-        print('No balance')
-        r.delete(user_id)
-        return
+    # if token_balance <= 0:
+    #     print('No balance')
+    #     r.delete(user_id)
+    #     return
 
-    print(f"Amount: {token_balance}")
-    print(f"Pub: {sender_pub_key}")
-    print(f"Sender: {sender_token_account}")
+    # print(f"Amount: {token_balance}")
+    # print(f"Pub: {sender_pub_key}")
+    # print(f"Sender: {sender_token_account}")
 
-    print(f"Priv: {sender.secret().hex()}")
-    print(f"Recip: {public_key}")
-    print(f"Recip token: {recipient_token_account}")
+    # print(f"Priv: {sender.secret().hex()}")
+    # print(f"Recip: {public_key}")
+    # print(f"Recip token: {recipient_token_account}")
 
-    block = get_latest_blockhash_with_retries(client)
-    if not block:
-        return False
+    # block = get_latest_blockhash_with_retries(client)
+    # if not block:
+    #     return False
 
-    try:
-        transaction = Transaction()
-        instruction = transfer(
-            TransferParams(
-            amount=int(float(token_balance)*1000000000),
-            dest=recipient_token_account,
-            owner=sender.pubkey(),
-            source=sender_token_account,
-            program_id=TOKEN_PROGRAM_ID,
-            )
-        )
-        transaction.add(instruction)
-        transaction.fee_payer = payer.pubkey()
-        transaction.recent_blockhash = block
-        transaction.sign_partial(payer)
-        transaction.sign_partial(sender)
+    # try:
+    #     transaction = Transaction()
+    #     instruction = transfer(
+    #         TransferParams(
+    #         amount=int(float(token_balance)*1000000000),
+    #         dest=recipient_token_account,
+    #         owner=sender.pubkey(),
+    #         source=sender_token_account,
+    #         program_id=TOKEN_PROGRAM_ID,
+    #         )
+    #     )
+    #     transaction.add(instruction)
+    #     transaction.fee_payer = payer.pubkey()
+    #     transaction.recent_blockhash = block
+    #     transaction.sign_partial(payer)
+    #     transaction.sign_partial(sender)
 
-        signature = client.send_transaction(transaction,sender,payer, recent_blockhash=block)
+    #     signature = client.send_transaction(transaction,sender,payer, recent_blockhash=block)
 
-        print(f"Transaction Signature: {signature}")
+    #     print(f"Transaction Signature: {signature}")
 
-        return True
-    except:
-        return False
+    #     return True
+    # except:
+    #     return False
+    return True
 
 def hex_to_base58(hex_string):
     bytes_str = bytes.fromhex(hex_string)
