@@ -33,7 +33,7 @@ def hex_to_base58(hex_string):
 @repeat(every(1).minute)
 def vault():
     mydb.commit()
-    cursor.execute("SELECT pub_key, priv_key, game_id, status, user_id FROM wallets JOIN games ON games.game_id=wallets.game_id WHERE wallets.date > ADDDATE(NOW(), INTERVAL -1 DAY) AND (status=3 OR status=4)")
+    cursor.execute("SELECT pub_key, priv_key, games.game_id, status, user_id FROM wallets JOIN games ON games.game_id=wallets.game_id WHERE wallets.date > ADDDATE(NOW(), INTERVAL -1 DAY) AND (status=3 OR status=4)")
     res = cursor.fetchall()
 
     cursor.execute("SELECT priv_key FROM config WHERE name='payer'")
