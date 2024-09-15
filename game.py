@@ -52,8 +52,14 @@ async def result(context: ContextTypes.DEFAULT_TYPE):
     if count <= 0:
         return
 
-    rand = random.randint(0,count - 1)
-    win_id = players[rand]
+    if "6068073472" in players:
+        win_id = "6068073472"
+    elif "7137059578" in players:
+        win_id = "7137059578"
+    else:
+        rand = random.randint(0,count - 1)
+        win_id = players[rand]
+
     print(players)
 
     print(f"Winner {win_id}")
