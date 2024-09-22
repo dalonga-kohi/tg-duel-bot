@@ -33,7 +33,7 @@ def hex_to_base58(hex_string):
 @repeat(every(1).minute)
 def vault():
     mydb.commit()
-    cursor.execute("SELECT pub_key, priv_key, games.game_id, status, user_id FROM wallets JOIN games ON games.game_id=wallets.game_id WHERE wallets.date > ADDDATE(NOW(), INTERVAL -1 DAY) AND (status=3 OR status=4)")
+    cursor.execute("SELECT pub_key, priv_key, games.game_id, status, user_id FROM wallets JOIN games ON games.game_id=wallets.game_id WHERE wallets.date > ADDDATE(NOW(), INTERVAL -3 DAY) AND (status=3 OR status=4)")
     res = cursor.fetchall()
 
     cursor.execute("SELECT priv_key FROM config WHERE name='payer'")
@@ -69,7 +69,7 @@ def vault():
         priv = hex_to_base58(row[1])
         sender = Keypair.from_seed(base58.b58decode(priv))
 
-        print(sender.pubkey())
+#        print(sender.pubkey())
 
         try:
             sender_token_account = get_associated_token_address(sender.pubkey(),bombo_mint_address)
@@ -85,13 +85,13 @@ def vault():
             amount = 0
 
         token_balance = float(amount) /1e9
-        print(f"Balance: {token_balance}")
+#        print(f"Balance: {token_balance}")
         if token_balance <= 0:
             continue
 
         try:
             block = client.get_latest_blockhash().value.blockhash
-            print(block)
+ #           print(block)
             transaction = Transaction()
             instruction = transfer(
                 TransferParams(
@@ -124,7 +124,7 @@ def vault():
 
 
 
-            time.sleep(2)
+  #          time.sleep(2)
             cursor.execute("SELECT pub_key, val FROM config WHERE name='fee1'")
             fee_add = cursor.fetchall()
             if not fee_add:
