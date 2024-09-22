@@ -4,8 +4,6 @@ from telegram.ext import ContextTypes
 from config import BOT_USERNAME, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, REPLY_CANCEL, REPLY_DUEL, REPLY_JOIN, REPLY_NO_FREE, REPLY_NO_JOIN, REPLY_STATUS, REPLY_START, T_GAME, T_PLAYER
 import mysql.connector
 from solders.keypair import Keypair # type: ignore
-from group import send_group_msg
-from grouptypes import MsgType
 from timer import set_player_timer, set_start_game_timer
 
 r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)

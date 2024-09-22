@@ -6,3 +6,4 @@ class MsgType(Enum):
     BEGIN_TIMER = 3
     GAME = 4
     RESULT = 5
+    BEGIN_JOIN = 6

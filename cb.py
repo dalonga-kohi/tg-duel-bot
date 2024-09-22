@@ -306,7 +306,8 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, update, co
         await set_start_game_timer(update=update, context=context, due=T_GAME, text="5 min timer start", job_name=f'start-{game_id}', game_id=game_id)
         print(f"CB: {game_id}")
         await send_group_msg(msg_type=MsgType.BEGIN_TIMER, context=context, user_id=user_id, game_id=game_id, stake=stake)
-
+    else:
+        await send_group_msg(msg_type=MsgType.BEGIN_JOIN, context=context, user_id=user_id, game_id=game_id, stake=stake, count=count)
 
     mydb.commit()
 

@@ -7,10 +7,23 @@ from config import BOT_USERNAME, CHAT_ID, TOKEN
 def MSG_START(stake: int, name: str):
    return f'The new Gulag by <b>{name}</b> has started with pot of <b>{stake} $BOMBO</b>. <b>Four spots left</b> - hit button below to compete for the pot and the "CHAMPION" title!'
 
-def MSG_BEGIN_TIMER(stake: int, name: str):
+def MSG_BEGIN_TIMER(stake: int, name: str, count: int =2):
     time = "5 minutes"
+    space = ""
 
-    return f'<b>{name}</b> has entered the Gulag. <b>Winner takes {2*int(stake)} $BOMBO</b> and the ”CHAMPION” title! <b>{time} left</b> for <b>three more to join!</b>'
+    if count == 2:
+        space = "for <b>three more to join!</b>"
+    elif count == 3:
+        space = "for <b>two more to join!</b>"
+        time = "4 minutes"
+    elif count == 4:
+        space = "for <b>one more to join!</b>"
+        time = "4 minutes"
+    else:
+        space = "<b>The Gulag is full.</b>"
+        time = "4 minutes"
+
+    return f'<b>{name}</b> has entered the Gulag. <b>Winner takes {count*int(stake)} $BOMBO</b> and the ”CHAMPION” title! <b>{time} left</b> ${space}'
 
 def MSG_GAME(count: int, stake:int):
     return f"The Gulag begins now with <b>{count} fighters</b> battling for their lives to win a massive <b>{stake*count} $BOMBO</b> stack and take one step closer to upgrading from brokie to TOP G with a ROLEX on their wrist."
@@ -40,6 +53,12 @@ async def send_group_msg(msg_type: MsgType, context: ContextTypes.DEFAULT_TYPE, 
         ]
     elif msg_type == MsgType.BEGIN_TIMER:
         msg = MSG_BEGIN_TIMER(name=username, stake=stake)
+        url = URL_BEGIN_TIMER
+        kb = [
+            [InlineKeyboardButton(text="Join to the Gulag", url=f"https://t.me/{BOT_USERNAME}?start={game_id}")]
+        ]
+    elif msg_type == MsgType.BEGIN_JOIN:
+        msg = MSG_BEGIN_TIMER(name=username, stake=stake, count=count)
         url = URL_BEGIN_TIMER
         kb = [
             [InlineKeyboardButton(text="Join to the Gulag", url=f"https://t.me/{BOT_USERNAME}?start={game_id}")]
