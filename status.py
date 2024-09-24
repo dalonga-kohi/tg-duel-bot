@@ -3,7 +3,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 import mysql.connector
 import requests # type: ignore
-from config import MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, REPLY_NO_STATUS, TOKEN
+from config import MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, REPLY_NO_STATUS, TOKEN, TOKEN_NAME
 from timer import get_time_left_in_job
 
 mydb = mysql.connector.connect(
@@ -154,7 +154,7 @@ async def show_games_won(user_id: int, context: ContextTypes.DEFAULT_TYPE):
             if r[i]:
                 count = count + 1
 
-        msg += f"<b>Gulag #{r[0]}</b>\n\tStake: {stake}\n\tPlayers: {count}/5\n\tPot: {stake*count} $BOMBO\n\n\n"
+        msg += f"<b>Gulag #{r[0]}</b>\n\tStake: {stake}\n\tPlayers: {count}/5\n\tPot: {stake*count} ${TOKEN_NAME}\n\n\n"
     reply = [
         [InlineKeyboardButton("🔙 Go Back",callback_data=f'back-1')]
     ]
@@ -180,7 +180,7 @@ async def show_games_lost(user_id: int, context: ContextTypes.DEFAULT_TYPE):
                 count = count + 1
 
         winner = get_username(r[7])
-        msg += f"<b>Gulag #{r[0]}</b>\n\tStake: {stake}\n\tPlayers: {count}/5\n\tPot: {stake*count*0.99} $BOMBO\n\tWinner: {winner}\n\n\n"
+        msg += f"<b>Gulag #{r[0]}</b>\n\tStake: {stake}\n\tPlayers: {count}/5\n\tPot: {stake*count*0.99} ${TOKEN_NAME}\n\tWinner: {winner}\n\n\n"
     reply = [
         [InlineKeyboardButton("🔙 Go Back",callback_data=f'back-1')]
     ]

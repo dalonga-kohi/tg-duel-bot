@@ -84,7 +84,7 @@ def vault():
         except:
             amount = 0
 
-        token_balance = float(amount) /1e9
+        token_balance = float(amount) /(10**DECIMALS)
 #        print(f"Balance: {token_balance}")
         if token_balance <= 0:
             continue

@@ -1,7 +1,7 @@
 import time
 from telegram import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
-from config import REPLY_DUEL, REPLY_GAME_END, REPLY_START, RULES, T_GAME, MINT, DECIMALS
+from config import REPLY_DUEL, REPLY_GAME_END, REPLY_START, RULES, T_GAME, MINT, DECIMALS, TOKEN_NAME
 from config import MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT
 import redis
 from solders.keypair import Keypair # type: ignore
@@ -185,7 +185,7 @@ def check_balance(pub_key: str) -> float:
                     token_balance = 0
                 token_balance = float(token_balance)/ (10**DECIMALS)
 
-            print(f'BOMBO Balance: {token_balance} $BOMBO')
+            print(f'BOMBO Balance: {token_balance} ${TOKEN_NAME}')
 
             return token_balance
         except:
@@ -274,7 +274,7 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, update, co
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        await context.bot.send_message(chat_id=chat_id, text=f'Current balance of the deposit address is <strong>{balance} $BOMBO</strong>.\nSadly it is not correct 😞\n\n\nYour deposit address is:\n<code class="monospace-text">{pub_key}</code>\n \n \nSend EXACTLY <b>{stake} $BOMBO</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', parse_mode='HTML', reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=chat_id, text=f'Current balance of the deposit address is <strong>{balance} ${TOKEN_NAME}</strong>.\nSadly it is not correct 😞\n\n\nYour deposit address is:\n<code class="monospace-text">{pub_key}</code>\n \n \nSend EXACTLY <b>{stake} ${TOKEN_NAME}</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', parse_mode='HTML', reply_markup=reply_markup)
         return
 
     keyboard = [
@@ -327,7 +327,6 @@ async def show_account(user_id: int, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [
         InlineKeyboardButton("🏦 Withdraw", callback_data=f'withd-1'),
-        InlineKeyboardButton("🔃 Withdraw Refound", callback_data=f'wd-1'),
         InlineKeyboardButton("🔙 Go back", callback_data=f'back-1'),
         ],
     ]
@@ -361,6 +360,6 @@ async def show_account(user_id: int, context: ContextTypes.DEFAULT_TYPE):
 
         ref_bal = check_balance(public_key)
 
-    msg = f"🏆 Gulags Won: {won}\t\t 💀 Gulags Lost: {lost}\n\nTotal Prize: {total} $BOMBO\n\nFunds to withdraw: {balance} $BOMBO\n\nFunds on refound account: {ref_bal} $BOMBO"
+    msg = f"🏆 Gulags Won: {won}\t\t 💀 Gulags Lost: {lost}\n\nTotal Prize: {total} ${TOKEN_NAME}\n\nFunds to withdraw: {balance} ${TOKEN_NAME}"
 
     await context.bot.send_message(chat_id=user_id, text=msg, reply_markup=reply_markup)
