@@ -1,7 +1,7 @@
 import time
 from telegram import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
-from config import REPLY_DUEL, REPLY_GAME_END, REPLY_START, RULES, T_GAME
+from config import REPLY_DUEL, REPLY_GAME_END, REPLY_START, RULES, T_GAME, MINT, DECIMALS
 from config import MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT
 import redis
 from solders.keypair import Keypair # type: ignore
@@ -15,7 +15,7 @@ from grouptypes import MsgType
 from refounds import abandon_game, cancel, stop_join, withdraw
 from status import show_games_canceled, show_games_lost, show_games_won, show_status, show_games_pending
 
-bombo_mint_address = Pubkey.from_string("D3pmeo4MrV2eWMJH3WybR4fnKdMiSS4DrYHqdYNNjQU5")
+bombo_mint_address = Pubkey.from_string(MINT)
 mydb = mysql.connector.connect(
     host=MYSQL_HOST,
     user=MYSQL_USER,
@@ -175,7 +175,7 @@ def check_balance(pub_key: str) -> float:
         try:
             balance = client.get_balance(pub_key)
             print(f"Address: {pub_key}")
-            print(f"SOL Balance: {balance.value / 1e9} SOL")
+            print(f"SOL Balance: {balance.value / (10**DECIMALS)} SOL")
             token_accounts = client.get_token_accounts_by_owner(pub_key, TokenAccountOpts(mint=bombo_mint_address))
             if not token_accounts.value:
                 token_balance = 0
@@ -183,7 +183,7 @@ def check_balance(pub_key: str) -> float:
                 token_balance = client.get_token_account_balance(token_accounts.value[0].pubkey).value.amount
                 if not token_balance:
                     token_balance = 0
-                token_balance = float(token_balance)/ 1e9
+                token_balance = float(token_balance)/ (10**DECIMALS)
 
             print(f'BOMBO Balance: {token_balance} $BOMBO')
 
@@ -305,7 +305,7 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, update, co
     if not current_jobs and count > 1:
         await set_start_game_timer(update=update, context=context, due=T_GAME, text="5 min timer start", job_name=f'start-{game_id}', game_id=game_id)
         print(f"CB: {game_id}")
-        await send_group_msg(msg_type=MsgType.BEGIN_TIMER, context=context, user_id=user_id, game_id=game_id, stake=stake)
+        await send_group_msg(msg_type=MsgType.BEGIN_JOIN, context=context, user_id=user_id, game_id=game_id, stake=stake, count=count)
     else:
         await send_group_msg(msg_type=MsgType.BEGIN_JOIN, context=context, user_id=user_id, game_id=game_id, stake=stake, count=count)
 

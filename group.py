@@ -7,9 +7,12 @@ from config import BOT_USERNAME, CHAT_ID, TOKEN
 def MSG_START(stake: int, name: str):
    return f'The new Gulag by <b>{name}</b> has started with pot of <b>{stake} $BOMBO</b>. <b>Four spots left</b> - hit button below to compete for the pot and the "CHAMPION" title!'
 
-def MSG_BEGIN_TIMER(stake: int, name: str, count: int =2):
+def MSG_BEGIN_TIMER(stake: int, name: str, count: int = 1):
     time = "5 minutes"
     space = ""
+
+    if count < 2:
+        return False
 
     if count == 2:
         space = "for <b>three more to join!</b>"
@@ -59,6 +62,9 @@ async def send_group_msg(msg_type: MsgType, context: ContextTypes.DEFAULT_TYPE, 
         ]
     elif msg_type == MsgType.BEGIN_JOIN:
         msg = MSG_BEGIN_TIMER(name=username, stake=stake, count=count)
+        if not msg:
+            return
+
         url = URL_BEGIN_TIMER
         kb = [
             [InlineKeyboardButton(text="Join to the Gulag", url=f"https://t.me/{BOT_USERNAME}?start={game_id}")]
