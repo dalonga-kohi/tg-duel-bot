@@ -3,7 +3,7 @@ import mysql.connector
 import redis
 from telegram import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
-from config import MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, PAYER, R_HOST, R_PORT, REPLY_ABAN, REPLY_GAME_END, VAULT_PRIV
+from config import MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, PAYER, R_HOST, R_PORT, REPLY_ABAN, REPLY_GAME_END, MINT, DECIMALS
 from solders.pubkey import Pubkey # type: ignore
 from spl.token.instructions import transfer, get_associated_token_address, TransferParams
 from solders.keypair import Keypair # type: ignore
@@ -17,7 +17,7 @@ from solana.rpc.types import TxOpts
 from group import send_group_msg
 from group import MsgType
 
-bombo_mint_address = Pubkey.from_string("D3pmeo4MrV2eWMJH3WybR4fnKdMiSS4DrYHqdYNNjQU5")
+bombo_mint_address = Pubkey.from_string(MINT)
 
 mydb = mysql.connector.connect(
     host=MYSQL_HOST,
@@ -339,7 +339,7 @@ async def withdraw(address: str, user_id: int) -> str:
         amount = 0
 
 
-    token_balance = float(amount) /1e9
+    token_balance = float(amount) /(10**DECIMALS)
 
     if token_balance <= 0:
         return None
@@ -362,7 +362,7 @@ async def withdraw(address: str, user_id: int) -> str:
         transaction = Transaction()
         instruction = transfer(
             TransferParams(
-            amount=int(float(token_balance)*1000000000),
+            amount=int(float(token_balance)*(10**DECIMALS)),
             dest=recipient_token_account,
             owner=sender.pubkey(),
             source=sender_token_account,
@@ -466,7 +466,7 @@ async def wd_total(address: str, user_id: int) -> str:
         transaction = Transaction()
         instruction = transfer(
             TransferParams(
-            amount=int(float(token_balance)*1000000000),
+            amount=int(float(token_balance)*(10**DECIMALS)),
             dest=recipient_token_account,
             owner=sender.pubkey(),
             source=sender_token_account,

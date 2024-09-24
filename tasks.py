@@ -11,9 +11,9 @@ import mysql.connector
 from solders.keypair import Keypair # type: ignore
 from spl.token.instructions import transfer, get_associated_token_address, TransferParams
 from solders.pubkey import Pubkey # type: ignore
-from config import FEE_ADDRESS, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, PAYER, VAULT_PRIV
+from config import DECIMALS, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, PAYER, VAULT_PRIV, MINT
 
-bombo_mint_address = Pubkey.from_string("D3pmeo4MrV2eWMJH3WybR4fnKdMiSS4DrYHqdYNNjQU5")
+bombo_mint_address = Pubkey.from_string(MINT)
 
 mydb = mysql.connector.connect(
     host=MYSQL_HOST,
@@ -95,7 +95,7 @@ def vault():
             transaction = Transaction()
             instruction = transfer(
                 TransferParams(
-                amount=int(float(token_balance)*1000000000),
+                amount=int(float(token_balance)*(10**DECIMALS)),
                 dest=recipient_token_account,
                 owner=sender.pubkey(),
                 source=sender_token_account,
@@ -125,84 +125,84 @@ def vault():
 
 
   #          time.sleep(2)
-            cursor.execute("SELECT pub_key, val FROM config WHERE name='fee1'")
-            fee_add = cursor.fetchall()
-            if not fee_add:
-                fee_pub = FEE_ADDRESS
-                per = 0.0125
-            else:
-                per = float(fee_add[0][1])
-                fee_pub = fee_add[0][0]
-            try:
-                try:
-                    fee_token_account = get_associated_token_address(Pubkey.from_string(fee_pub), bombo_mint_address)
-                except:
-                    fee_token_account = token.create_associated_token_account(owner=Pubkey.from_string(fee_pub), skip_confirmation=False, recent_blockhash=None)
-            except:
-                print('No Funds for creation')
+            # cursor.execute("SELECT pub_key, val FROM config WHERE name='fee1'")
+            # fee_add = cursor.fetchall()
+            # if not fee_add:
+            #     fee_pub = FEE_ADDRESS
+            #     per = 0.0125
+            # else:
+            #     per = float(fee_add[0][1])
+            #     fee_pub = fee_add[0][0]
+            # try:
+            #     try:
+            #         fee_token_account = get_associated_token_address(Pubkey.from_string(fee_pub), bombo_mint_address)
+            #     except:
+            #         fee_token_account = token.create_associated_token_account(owner=Pubkey.from_string(fee_pub), skip_confirmation=False, recent_blockhash=None)
+            # except:
+            #     print('No Funds for creation')
 
-            block = client.get_latest_blockhash().value.blockhash
+            # block = client.get_latest_blockhash().value.blockhash
 
-            print(f'Fee: {int(token_balance*per*1000000000)}')
-            transaction = Transaction()
-            instruction = transfer(
-                TransferParams(
-                amount=int(token_balance*per*1000000000),
-                dest=fee_token_account,
-                owner=recipient.pubkey(),
-                source=recipient_token_account,
-                program_id=TOKEN_PROGRAM_ID,
-                )
-            )
-            transaction.add(instruction)
-            transaction.fee_payer = payer.pubkey()
-            transaction.recent_blockhash = block
-            transaction.sign_partial(payer)
-            transaction.sign_partial(recipient)
-            print('HERE')
-            signature = client.send_transaction(transaction,recipient,payer, recent_blockhash=block)
+            # print(f'Fee: {int(token_balance*per*1000000000)}')
+            # transaction = Transaction()
+            # instruction = transfer(
+            #     TransferParams(
+            #     amount=int(token_balance*per*1000000000),
+            #     dest=fee_token_account,
+            #     owner=recipient.pubkey(),
+            #     source=recipient_token_account,
+            #     program_id=TOKEN_PROGRAM_ID,
+            #     )
+            # )
+            # transaction.add(instruction)
+            # transaction.fee_payer = payer.pubkey()
+            # transaction.recent_blockhash = block
+            # transaction.sign_partial(payer)
+            # transaction.sign_partial(recipient)
+            # print('HERE')
+            # signature = client.send_transaction(transaction,recipient,payer, recent_blockhash=block)
 
-            print(f"Transaction Signature: {signature}")
+            # print(f"Transaction Signature: {signature}")
 
-            block = client.get_latest_blockhash().value.blockhash
-            cursor.execute("SELECT pub_key, val FROM config WHERE name='fee2'")
-            fee_add = cursor.fetchall()
-            if not fee_add:
-                fee_pub = FEE_ADDRESS
-                per = 0.0025
-            else:
-                per = float(fee_add[0][1])
-                fee_pub = fee_add[0][0]
-            try:
-                try:
-                    fee_token_account = get_associated_token_address(Pubkey.from_string(fee_pub), bombo_mint_address)
-                except:
-                    fee_token_account = token.create_associated_token_account(owner=Pubkey.from_string(fee_pub), skip_confirmation=False, recent_blockhash=None)
-            except:
-                print('No Funds for creation')
+            # block = client.get_latest_blockhash().value.blockhash
+            # cursor.execute("SELECT pub_key, val FROM config WHERE name='fee2'")
+            # fee_add = cursor.fetchall()
+            # if not fee_add:
+            #     fee_pub = FEE_ADDRESS
+            #     per = 0.0025
+            # else:
+            #     per = float(fee_add[0][1])
+            #     fee_pub = fee_add[0][0]
+            # try:
+            #     try:
+            #         fee_token_account = get_associated_token_address(Pubkey.from_string(fee_pub), bombo_mint_address)
+            #     except:
+            #         fee_token_account = token.create_associated_token_account(owner=Pubkey.from_string(fee_pub), skip_confirmation=False, recent_blockhash=None)
+            # except:
+            #     print('No Funds for creation')
 
-            block = client.get_latest_blockhash().value.blockhash
+            # block = client.get_latest_blockhash().value.blockhash
 
-            print(f'Fee: {int(token_balance*per*1000000000)}')
-            transaction = Transaction()
-            instruction = transfer(
-                TransferParams(
-                amount=int(token_balance*per*1000000000),
-                dest=fee_token_account,
-                owner=recipient.pubkey(),
-                source=recipient_token_account,
-                program_id=TOKEN_PROGRAM_ID,
-                )
-            )
-            transaction.add(instruction)
-            transaction.fee_payer = payer.pubkey()
-            transaction.recent_blockhash = block
-            transaction.sign_partial(payer)
-            transaction.sign_partial(recipient)
-            print('HERE2')
-            signature = client.send_transaction(transaction,recipient,payer, recent_blockhash=block)
+            # print(f'Fee: {int(token_balance*per*1000000000)}')
+            # transaction = Transaction()
+            # instruction = transfer(
+            #     TransferParams(
+            #     amount=int(token_balance*per*1000000000),
+            #     dest=fee_token_account,
+            #     owner=recipient.pubkey(),
+            #     source=recipient_token_account,
+            #     program_id=TOKEN_PROGRAM_ID,
+            #     )
+            # )
+            # transaction.add(instruction)
+            # transaction.fee_payer = payer.pubkey()
+            # transaction.recent_blockhash = block
+            # transaction.sign_partial(payer)
+            # transaction.sign_partial(recipient)
+            # print('HERE2')
+            # signature = client.send_transaction(transaction,recipient,payer, recent_blockhash=block)
 
-            print(f"Transaction Signature: {signature}")
+            # print(f"Transaction Signature: {signature}")
         except Exception as ex:
             print(ex)
             print('Transit retry')
