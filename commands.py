@@ -1,7 +1,7 @@
 import redis
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
-from config import BOT_USERNAME, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, REPLY_CANCEL, REPLY_DUEL, REPLY_JOIN, REPLY_NO_FREE, REPLY_NO_JOIN, REPLY_STATUS, REPLY_START, T_GAME, T_PLAYER
+from config import BOT_USERNAME, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, TOKEN_NAME, REPLY_DUEL, REPLY_JOIN, REPLY_NO_FREE, REPLY_NO_JOIN, REPLY_STATUS, REPLY_START, T_GAME, T_PLAYER
 import mysql.connector
 from solders.keypair import Keypair # type: ignore
 from timer import set_player_timer, set_start_game_timer
@@ -247,7 +247,7 @@ async def join(update, game_id: int, user_id: int, context: ContextTypes.DEFAULT
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo join send {myresult[6]} $BOMBO to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.\n\n You have 4 minutes to confirm the deposit.', reply_markup=reply_markup, parse_mode='HTML')
+    await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo join send {myresult[6]} ${TOKEN_NAME} to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.\n\n You have 4 minutes to confirm the deposit.', reply_markup=reply_markup, parse_mode='HTML')
 
     r.set(user_id, "DEPOSIT")
 
