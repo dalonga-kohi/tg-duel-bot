@@ -1,0 +1,606 @@
+Polling...
+User 6494257700 sends a message(supergroup) on -1002055858151
+User 7137059578 Selected: account-1 in chat 7137059578
+Address: qczLqUN9wwhe5zEjRkaEQMvvuVnKwWKZG4aZWUwFoQk
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+User 7137059578 Selected: back-1 in chat 7137059578
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 6662625606 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 5853677281 sends a message(supergroup) on -1002055858151
+User 7122889711 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 1949285033 sends a message(supergroup) on -1002055858151
+User 6662625606 sends a message(supergroup) on -1002055858151
+User 6662625606 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 6662625606 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 5494058371 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 6494257700 sends a message(supergroup) on -1002055858151
+User 6840795810 sends a message(supergroup) on -1002055858151
+User 6210620943 sends a message(supergroup) on -1002055858151
+User 6840795810 sends a message(supergroup) on -1002055858151
+Update Update(edited_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 9, 34, 26, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 9, 34, 31, tzinfo=<UTC>), from_user=User(first_name='AdriM', id=6840795810, is_bot=False, is_premium=True, language_code='cs', username='AdriMx0_tg'), group_chat_created=False, message_id=933301, message_thread_id=933299, reply_to_message=Message(caption='🆕 | Vote for BOMBO!\npowered by @MajorTrending\n\n▶️ | Current Votes: 18\n▶️ | 2 Votes left for trending\n\n⭐️ | Trending Leaderboard\n\nClick on VOTE to show your support and join the giveaway!', caption_entities=(MessageEntity(custom_emoji_id='5260363102465052446', length=2, offset=0, type=<MessageEntityType.CUSTOM_EMOJI>), MessageEntity(length=16, offset=5, type=<MessageEntityType.BOLD>), MessageEntity(length=11, offset=21, type=<MessageEntityType.BOLD>), MessageEntity(length=11, offset=21, type=<MessageEntityType.ITALIC>), MessageEntity(length=14, offset=32, type=<MessageEntityType.MENTION>), MessageEntity(length=14, offset=32, type=<MessageEntityType.BOLD>), MessageEntity(length=14, offset=32, type=<MessageEntityType.ITALIC>), MessageEntity(length=2, offset=46, type=<MessageEntityType.BOLD>), MessageEntity(length=2, offset=48, type=<MessageEntityType.BOLD>), MessageEntity(custom_emoji_id='5260268995436630897', length=2, offset=48, type=<MessageEntityType.CUSTOM_EMOJI>), MessageEntity(length=21, offset=50, type=<MessageEntityType.BOLD>), MessageEntity(length=2, offset=71, type=<MessageEntityType.BOLD>), MessageEntity(custom_emoji_id='5260268995436630897', length=2, offset=71, type=<MessageEntityType.CUSTOM_EMOJI>), MessageEntity(length=28, offset=73, type=<MessageEntityType.BOLD>), MessageEntity(custom_emoji_id='5260542404464759100', length=2, offset=103, type=<MessageEntityType.CUSTOM_EMOJI>), MessageEntity(length=20, offset=108, type=<MessageEntityType.TEXT_LINK>, url='https://t.me/MajorTrending/2187978/2188359'), MessageEntity(length=57, offset=130, type=<MessageEntityType.ITALIC>)), channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 9, 32, 50, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 9, 33, 36, tzinfo=<UTC>), from_user=User(first_name='Major Buy Bot', id=7098195052, is_bot=True, username='MajorBuyBot'), group_chat_created=False, has_protected_content=True, message_id=933299, photo=(PhotoSize(file_id='AgACAgQAAx0Ceonn5wABDjfHZu54gESwA5OQ7YqN9gPJ4HMva6UAAqy0MRuw1UVTDo8_ar8P4yABAAMCAANzAAM2BA', file_size=873, file_unique_id='AQADrLQxG7DVRVN4', height=36, width=90), PhotoSize(file_id='AgACAgQAAx0Ceonn5wABDjfHZu54gESwA5OQ7YqN9gPJ4HMva6UAAqy0MRuw1UVTDo8_ar8P4yABAAMCAANtAAM2BA', file_size=6444, file_unique_id='AQADrLQxG7DVRVNy', height=128, width=320), PhotoSize(file_id='AgACAgQAAx0Ceonn5wABDjfHZu54gESwA5OQ7YqN9gPJ4HMva6UAAqy0MRuw1UVTDo8_ar8P4yABAAMCAAN4AAM2BA', file_size=19922, file_unique_id='AQADrLQxG7DVRVN9', height=320, width=800), PhotoSize(file_id='AgACAgQAAx0Ceonn5wABDjfHZu54gESwA5OQ7YqN9gPJ4HMva6UAAqy0MRuw1UVTDo8_ar8P4yABAAMCAAN5AAM2BA', file_size=21607, file_unique_id='AQADrLQxG7DVRVN-', height=400, width=1000)), reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(text='Vote for BOMBO', url='https://t.me/MajorBuyBot?start=vote_-1002055858151'),),)), supergroup_chat_created=False), sender_boost_count=7, supergroup_chat_created=False, text='This shitty bot always tells me that I have voted in the last 24h but I could not vote even before...'), update_id=21550310) caused an error: 
+ 'NoneType' object has no attribute 'text'
+User 6210620943 sends a message(supergroup) on -1002055858151
+User 6210620943 sends a message(supergroup) on -1002055858151
+User 6210620943 sends a message(supergroup) on -1002055858151
+Update Update(edited_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 7, 30, 31, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 9, 37, 27, tzinfo=<UTC>), entities=(MessageEntity(length=18, offset=0, type=<MessageEntityType.MENTION>),), from_user=User(first_name='WhaleWhisperer', id=6401535279, is_bot=False, is_premium=True, username='bettercallsolgoodman'), group_chat_created=False, message_id=933236, message_thread_id=933191, reply_to_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 21, 22, 5, 1, tzinfo=<UTC>), delete_chat_photo=False, from_user=User(first_name='AdriM', id=6840795810, is_bot=False, is_premium=True, language_code='cs', username='AdriMx0_tg'), group_chat_created=False, message_id=933191, sender_boost_count=7, supergroup_chat_created=False, text='Wen Bombo kuduro?'), sender_boost_count=19, supergroup_chat_created=False, text='@BOMBOBOMBOCLATANA is always there'), update_id=21550314) caused an error: 
+ 'NoneType' object has no attribute 'text'
+User 6737779358 sends a message(supergroup) on -1002055858151
+User 6148177234 sends a message(supergroup) on -1002055858151
+User 6148177234 sends a message(supergroup) on -1002055858151
+User 6737779358 sends a message(supergroup) on -1002055858151
+User 6840795810 sends a message(supergroup) on -1002055858151
+User 6737779358 sends a message(supergroup) on -1002055858151
+User 6840795810 sends a message(supergroup) on -1002055858151
+User 6737779358 sends a message(supergroup) on -1002055858151
+User 6303703453 sends a message(supergroup) on -1002055858151
+User 6840795810 sends a message(supergroup) on -1002055858151
+User 6840795810 sends a message(supergroup) on -1002055858151
+Update Update(edited_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 9, 4, 28, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 10, 8, 47, tzinfo=<UTC>), from_user=User(first_name='DRLFZN', id=7496878788, is_bot=False, language_code='de', username='DRLFZN'), group_chat_created=False, message_id=933281, supergroup_chat_created=False, text='Everyone wants Marketing but when it comes to free marketing through just clicking a button.\nNo one able to click or what ?\nYou stupid ?\nIt was never this easy !!!'), update_id=21550329) caused an error: 
+ 'NoneType' object has no attribute 'text'
+User 6401535279 sends a message(supergroup) on -1002055858151
+User 5473272781 sends a message(supergroup) on -1002055858151
+User 6737779358 sends a message(supergroup) on -1002055858151
+User 6737779358 sends a message(supergroup) on -1002055858151
+User 6068073472 sends a message(supergroup) on -1002055858151
+User 6401535279 sends a message(supergroup) on -1002055858151
+User 6401535279 sends a message(supergroup) on -1002055858151
+User 6737779358 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 2017612248 sends a message(supergroup) on -1002055858151
+User 7122889711 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 6662625606 sends a message(supergroup) on -1002055858151
+User 736222727 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 6401535279 sends a message(supergroup) on -1002055858151
+User 5944272442 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 7351884179 sends a message(supergroup) on -1002055858151
+User 7351884179 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 1192519309 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+Update Update(edited_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 12, 6, 36, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 12, 49, 16, tzinfo=<UTC>), from_user=User(first_name='DRLFZN', id=7496878788, is_bot=False, language_code='de', username='DRLFZN'), group_chat_created=False, message_id=933376, supergroup_chat_created=False, text='Someone loading up for playing coinflip.\nYou got 1k more\nLoad it Chad'), update_id=21550392) caused an error: 
+ 'NoneType' object has no attribute 'text'
+User 6840795810 sends a message(supergroup) on -1002055858151
+User 6840795810 sends a message(supergroup) on -1002055858151
+User 5767358345 sends a message(supergroup) on -1002055858151
+User 5726103959 Selected: account-1 in chat 5726103959
+Address: EtueL1hUGdNiDCJ71vtFHsAw873y7wEHk8qSvAMSePfU
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+User 5726103959 Selected: withd-1 in chat 5726103959
+User 5726103959 sends a message(private) on 5726103959
+status: WITHD
+procced
+Pub: 2JLM5dd7VXL1dVoToM2vUP3DwyvTVtnatTeGDwLumx6u
+User 5726103959 sends a message(private) on 5726103959
+status: WITHD
+procced
+Pub: 2JLM5dd7VXL1dVoToM2vUP3DwyvTVtnatTeGDwLumx6u
+Amount: 270875.0
+Pub: 2JLM5dd7VXL1dVoToM2vUP3DwyvTVtnatTeGDwLumx6u
+Sender: 51nX2bKSsR8a6nByxuGHPxcCx4EUgKrnHKdtXsizqw5m
+Priv: ffdd857f2960105b5605066aabe6dc29262f3c724485139c8893e82e0fb07e6e
+Recip: B1ygmA582rkBhK7Dg5qa5osqvWyfu4qojFkYKCh6FALY
+Recip token: EajeSF7BgSr3mc4VUvuhxCyTC9Y3bSt9bU9TRrkXbeAo
+Attempt
+Transaction Signature: SendTransactionResp(Signature(Vnpk64fCNrtXv3vg87JifNigJcomeY1CXYZvqiLATU9ueFeAGKHHnFdwraNJ66Kmt5L59V7HwKncm8PKd83s8pJ))
+Address: EtueL1hUGdNiDCJ71vtFHsAw873y7wEHk8qSvAMSePfU
+SOL Balance: 0.0 SOL
+Failed to retrive balance
+Address: EtueL1hUGdNiDCJ71vtFHsAw873y7wEHk8qSvAMSePfU
+SOL Balance: 0.0 SOL
+Failed to retrive balance
+User 6609258549 sends a message(supergroup) on -1002055858151
+New duel by user 5726103959
+User 5726103959 sends a message(private) on 5726103959
+status: SETTING
+Stake: 25000
+creating new game
+Public Key: 5S8SLrLjQiToinXrab2yUohkYtJj2dLiCvBEUjeQmoVW
+Private Key: 3991e63230b51d6f837ce320769389047778496cfd790ec674c156d971bf3af1
+User 5726103959 Selected: confirm-create-5100336 in chat 5726103959
+Address: 5S8SLrLjQiToinXrab2yUohkYtJj2dLiCvBEUjeQmoVW
+SOL Balance: 0.0 SOL
+BOMBO Balance: 25000.0 $BOMBO
+Count: 1
+Username: Bombosprat
+Username: Bombosprat
+Args: 5100336
+('5726103959', None, None, None, None, 1, '25000')
+Public Key: F8amJvGBGnhzS58EKFhvLorjZ3QgnFS5CLqA996gHD6F
+Private Key: 46fa2dbfe9516cd169a52ea0a96d6456e99c6046e61ac362d95d630599e94978
+TIME: None
+User 6148177234 Selected: confirm-5100336 in chat 6148177234
+Address: F8amJvGBGnhzS58EKFhvLorjZ3QgnFS5CLqA996gHD6F
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+User 6148177234 Selected: confirm-5100336 in chat 6148177234
+Address: F8amJvGBGnhzS58EKFhvLorjZ3QgnFS5CLqA996gHD6F
+SOL Balance: 0.0 SOL
+BOMBO Balance: 25000.0 $BOMBO
+Count: 2
+CB: 5100336
+Username: king9voss
+Player 6148177234 payed the deposit
+5100336
+Players: 2
+Args: 5100336
+('5726103959', '6148177234', None, None, None, 1, '25000')
+Public Key: 4i41xVuUTK8rFGYVhedRLiqMvvUKHKXqV7iSSpmWEGFF
+Private Key: a0499114394e10255c1c1ead1a15fd598dce805bcee89a53b542d726bb7844d1
+TIME: None
+Check depo: 5726103959
+Check depo: 6148177234
+Check depo: 1293455119
+Check depo: None
+Check depo: None
+Players with deposit: 2
+Error: Bad Request: chat not found
+[5726103959, 6148177234, 1293455119]
+Winner 6148177234
+Username: king9voss
+Player : 5726103959
+Player : 6148177234
+Player : 1293455119
+User 1293455119 Selected: confirm-5100336 in chat 1293455119
+User 1293455119 Selected: account-1 in chat 1293455119
+Address: Bn92pyxopKGSoyvj1ra5NAqwQEWHMeMGDwypFWT49EkX
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+User 1293455119 sends a message(supergroup) on -1002055858151
+User 1293455119 sends a message(supergroup) on -1002055858151
+User 6148177234 Selected: status-5100336 in chat 6148177234
+5100336
+Username: king9voss
+User 6148177234 Selected: rules in chat 6148177234
+Player 1293455119 payed the deposit
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 5726103959 Selected: create-new in chat 5726103959
+New duel by user 5726103959
+User 5726103959 sends a message(private) on 5726103959
+status: SETTING
+Stake: 50000
+creating new game
+Public Key: 4n4zAeRXr2SgrnWbB9YJPwTbjKj73qwpSX6cYjyKv4oV
+Private Key: 89102ef6b2484c8a07ad8f67f3bb38f313b82dfad0f5c1ef32014bf4264e8b28
+User 6148177234 Selected: account-1 in chat 6148177234
+Address: HudQ9Gq4hwe3LeVr31iRyn1NChH7idAuoeLw6AiretNY
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+User 6983921657 sends a message(supergroup) on -1002055858151
+User 5726103959 Selected: confirm-create-4090529 in chat 5726103959
+Address: 4n4zAeRXr2SgrnWbB9YJPwTbjKj73qwpSX6cYjyKv4oV
+SOL Balance: 0.0 SOL
+BOMBO Balance: 50000.0 $BOMBO
+Count: 1
+Username: Bombosprat
+Username: Bombosprat
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 1293455119 sends a message(supergroup) on -1002055858151
+Args: 4090529
+('5726103959', None, None, None, None, 1, '50000')
+Public Key: 7eHoX3saRDkFGH44L7B7A7mLkjtrgy6FdktX2bBXH34S
+Private Key: 98fcb71c595a1cf01739a776117d333a098eb7fa3114d3b8388a94928eee1176
+TIME: None
+User 1293455119 Selected: confirm-4090529 in chat 1293455119
+Address: 7eHoX3saRDkFGH44L7B7A7mLkjtrgy6FdktX2bBXH34S
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+User 1293455119 Selected: confirm-4090529 in chat 1293455119
+Address: 7eHoX3saRDkFGH44L7B7A7mLkjtrgy6FdktX2bBXH34S
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+User 1293455119 Selected: confirm-4090529 in chat 1293455119
+Address: 7eHoX3saRDkFGH44L7B7A7mLkjtrgy6FdktX2bBXH34S
+SOL Balance: 0.0 SOL
+BOMBO Balance: 50000.0 $BOMBO
+Count: 2
+CB: 4090529
+Username: abdelkiwi
+Args: 4090529
+('5726103959', '1293455119', None, None, None, 1, '50000')
+Public Key: BfKAVjCvCddoDuoBYc21cE9zbi7UwPYEMzRVMLaoQVPJ
+Private Key: bf86e774c9b80cf7125bd3b1a95c6317b8ee02cf4df831da35525b594dd4740b
+TIME: None
+User 1293455119 sends a message(supergroup) on -1002055858151
+User 6148177234 Selected: confirm-4090529 in chat 6148177234
+Address: BfKAVjCvCddoDuoBYc21cE9zbi7UwPYEMzRVMLaoQVPJ
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+Join by user 6148177234
+User 6148177234 Selected: account-1 in chat 6148177234
+Address: HudQ9Gq4hwe3LeVr31iRyn1NChH7idAuoeLw6AiretNY
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+User 6148177234 Selected: wd-1 in chat 6148177234
+User 6148177234 Selected: wd-1 in chat 6148177234
+User 6148177234 Selected: wd-1 in chat 6148177234
+User 6148177234 Selected: back-1 in chat 6148177234
+Args: 4090529
+('5726103959', '1293455119', '6148177234', None, None, 1, '50000')
+Public Key: 1PbRZtYeF7qimva572dPhRDg6n97RdZWZMB7aGxdguM
+Private Key: b29c766dcb1ccf72fa8e4571ad5e5c751de99fef65ae3cc6a3210b9bf930bad1
+TIME: None
+Player 1293455119 payed the deposit
+User 6148177234 Selected: create-new in chat 6148177234
+User 6148177234 has 30s to confirm deposit
+User 7496878788 Selected: confirm-4090529 in chat 7496878788
+Address: 1PbRZtYeF7qimva572dPhRDg6n97RdZWZMB7aGxdguM
+SOL Balance: 0.0 SOL
+BOMBO Balance: 50000.0 $BOMBO
+Count: 4
+Username: DRLFZN
+User 6148177234 Selected: games in chat 6148177234
+STOP JOINING
+Player 6148177234 has been kicked out the game
+Update None caused an error: 
+ Chat not found
+User 6148177234 Selected: won-1 in chat 6148177234
+4090529
+Players: 3
+User 6148177234 Selected: back-1 in chat 6148177234
+User 6148177234 Selected: create-new in chat 6148177234
+New duel by user 6148177234
+User 7496878788 sends a message(supergroup) on -1002055858151
+Check depo: 5726103959
+Check depo: 1293455119
+Check depo: None
+Check depo: 7496878788
+Check depo: None
+Players with deposit: 3
+Error: Bad Request: chat not found
+[5726103959, 1293455119, 7496878788]
+Winner 7496878788
+Username: DRLFZN
+Player : 5726103959
+Player : 1293455119
+Player : 7496878788
+User 1293455119 sends a message(supergroup) on -1002055858151
+User 6148177234 sends a message(private) on 6148177234
+status: SETTING
+Stake: 10000
+creating new game
+Public Key: 7Ri7gkQpKdfG5hZcYbkMB9bJhFQnrR4L2zBoHXAi7TNi
+Private Key: 53f318ec7f2c7b6fd9aa8dfc0e03471a8ac24161db70817711a9fbe04f8e1009
+User 1293455119 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 6148177234 Selected: confirm-create-4540657 in chat 6148177234
+Address: 7Ri7gkQpKdfG5hZcYbkMB9bJhFQnrR4L2zBoHXAi7TNi
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+User 6148177234 Selected: confirm-create-4540657 in chat 6148177234
+Address: 7Ri7gkQpKdfG5hZcYbkMB9bJhFQnrR4L2zBoHXAi7TNi
+SOL Balance: 0.0 SOL
+BOMBO Balance: 10000.0 $BOMBO
+Count: 1
+Username: king9voss
+Username: king9voss
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 6148177234 Selected: confirm-create-4540657 in chat 6148177234
+Player 7496878788 payed the deposit
+User 6148177234 Selected: status-4540657 in chat 6148177234
+4540657
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 6148177234 Selected: games in chat 6148177234
+User 6148177234 Selected: back-4894 in chat 6148177234
+New duel by user 7496878788
+User 7496878788 Selected: abandon-nogame in chat 7496878788
+abandon
+SETTING
+User 7496878788 Selected: account-1 in chat 7496878788
+Address: HutPthWVWuSJQFuJCcDisL23spFKuzSswPPMgiEWTwSt
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0.0 $BOMBO
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 7496878788 Selected: rules in chat 7496878788
+User 7496878788 Selected: account-1 in chat 7496878788
+Address: HutPthWVWuSJQFuJCcDisL23spFKuzSswPPMgiEWTwSt
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0.0 $BOMBO
+User 7496878788 Selected: withd-1 in chat 7496878788
+User 7496878788 sends a message(private) on 7496878788
+status: WITHD
+procced
+Pub: 2JLM5dd7VXL1dVoToM2vUP3DwyvTVtnatTeGDwLumx6u
+Amount: 172375.0
+Pub: 2JLM5dd7VXL1dVoToM2vUP3DwyvTVtnatTeGDwLumx6u
+Sender: 51nX2bKSsR8a6nByxuGHPxcCx4EUgKrnHKdtXsizqw5m
+Priv: ffdd857f2960105b5605066aabe6dc29262f3c724485139c8893e82e0fb07e6e
+Recip: DbA7hMdh8wSLekqMgXxj6g7d7EaU6xGRstne5QKC1egM
+Recip token: 93usCqZrS3YWtzwsrMVp7Pn7QUXPk8JErRxWbmk3AeGT
+Attempt
+Transaction Signature: SendTransactionResp(Signature(4fm2bMXnvzKJdc6F1RzXz3Y4cobg7TH3hiruF2azTFVXNBTCjyWMQW1nQJgmLZc6HksV3ZZJdmKnn3GcMD5MrdxX))
+Address: HutPthWVWuSJQFuJCcDisL23spFKuzSswPPMgiEWTwSt
+SOL Balance: 0.0 SOL
+Failed to retrive balance
+Address: HutPthWVWuSJQFuJCcDisL23spFKuzSswPPMgiEWTwSt
+SOL Balance: 0.0 SOL
+Failed to retrive balance
+User 5868274911 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6148177234 Selected: account-1 in chat 6148177234
+Address: HudQ9Gq4hwe3LeVr31iRyn1NChH7idAuoeLw6AiretNY
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+User 6148177234 Selected: withd-1 in chat 6148177234
+User 7126033019 sends a message(supergroup) on -1002055858151
+User 6148177234 sends a message(private) on 6148177234
+status: WITHD
+procced
+Pub: 2JLM5dd7VXL1dVoToM2vUP3DwyvTVtnatTeGDwLumx6u
+Amount: 73875.0
+Pub: 2JLM5dd7VXL1dVoToM2vUP3DwyvTVtnatTeGDwLumx6u
+Sender: 51nX2bKSsR8a6nByxuGHPxcCx4EUgKrnHKdtXsizqw5m
+Priv: ffdd857f2960105b5605066aabe6dc29262f3c724485139c8893e82e0fb07e6e
+Recip: Gv1ASsqnYx6BA8qu2zsj9Bnhvcu1WuuCo47PjScKLpN6
+Recip token: CKu4jd7fWNfXeDhYpBzkuB4e8UaDxmR9GZnwE9beR598
+Attempt
+Transaction Signature: SendTransactionResp(Signature(5uiafaPfFzBW9n3SVkoPAvzb6PtJWZ9KK3L6SRoxdA9UGBZF51Apg35M6b8bYDjWR1wADnDSxv6aERg85oNfEMPt))
+Address: HudQ9Gq4hwe3LeVr31iRyn1NChH7idAuoeLw6AiretNY
+SOL Balance: 0.0 SOL
+Failed to retrive balance
+Address: HudQ9Gq4hwe3LeVr31iRyn1NChH7idAuoeLw6AiretNY
+SOL Balance: 0.0 SOL
+Failed to retrive balance
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 1192519309 sends a message(supergroup) on -1002055858151
+User 1192519309 sends a message(supergroup) on -1002055858151
+User 1192519309 sends a message(supergroup) on -1002055858151
+User 1192519309 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 5851631963 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 1368818552 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 1368818552 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 6148177234 Selected: back-1 in chat 6148177234
+User 6148177234 Selected: account-1 in chat 6148177234
+Address: HudQ9Gq4hwe3LeVr31iRyn1NChH7idAuoeLw6AiretNY
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 6494257700 sends a message(supergroup) on -1002055858151
+User 1824417386 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+Update Update(edited_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 14, 41, 35, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 15, 47, 44, tzinfo=<UTC>), from_user=User(first_name='Chris', id=1192519309, is_bot=False, is_premium=True, language_code='en', last_name='Griffith $Bombo $Pyrate 🌴🌴🦉🥠', username='fattychrisCG'), group_chat_created=False, message_id=933557, supergroup_chat_created=False, text='Community is sleeping on their own bags'), update_id=21550555) caused an error: 
+ 'NoneType' object has no attribute 'text'
+Update Update(edited_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 14, 41, 45, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 15, 47, 46, tzinfo=<UTC>), from_user=User(first_name='Chris', id=1192519309, is_bot=False, is_premium=True, language_code='en', last_name='Griffith $Bombo $Pyrate 🌴🌴🦉🥠', username='fattychrisCG'), group_chat_created=False, message_id=933558, supergroup_chat_created=False, text='People only coming here to complain 🤡'), update_id=21550556) caused an error: 
+ 'NoneType' object has no attribute 'text'
+Update Update(edited_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 14, 41, 54, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 15, 47, 47, tzinfo=<UTC>), from_user=User(first_name='Chris', id=1192519309, is_bot=False, is_premium=True, language_code='en', last_name='Griffith $Bombo $Pyrate 🌴🌴🦉🥠', username='fattychrisCG'), group_chat_created=False, message_id=933559, supergroup_chat_created=False, text='An not even putting a single bit of work'), update_id=21550557) caused an error: 
+ 'NoneType' object has no attribute 'text'
+Update Update(edited_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 14, 42, 8, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 15, 47, 51, tzinfo=<UTC>), from_user=User(first_name='BeMoreHappy', id=6609258549, is_bot=False, last_name='BOMBO', username='DoLoRSQ7'), group_chat_created=False, message_id=933560, supergroup_chat_created=False, text='Should buy now before pump'), update_id=21550558) caused an error: 
+ 'NoneType' object has no attribute 'text'
+Update Update(edited_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 14, 42, 28, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 15, 47, 52, tzinfo=<UTC>), from_user=User(first_name='BeMoreHappy', id=6609258549, is_bot=False, last_name='BOMBO', username='DoLoRSQ7'), group_chat_created=False, message_id=933561, supergroup_chat_created=False, text='Is the best price and the best mc to join'), update_id=21550559) caused an error: 
+ 'NoneType' object has no attribute 'text'
+Update Update(edited_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 14, 42, 40, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 15, 47, 52, tzinfo=<UTC>), from_user=User(first_name='DRLFZN', id=7496878788, is_bot=False, language_code='de', username='DRLFZN'), group_chat_created=False, message_id=933562, supergroup_chat_created=False, text='No pump without constantly raiding'), update_id=21550560) caused an error: 
+ 'NoneType' object has no attribute 'text'
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 1355135392 sends a message(supergroup) on -1002055858151
+User 6401535279 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+Args: 4090529
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 6417365952 sends a message(supergroup) on -1002055858151
+User 7343623068 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 6417365952 sends a message(supergroup) on -1002055858151
+User 1629621888 sends a message(supergroup) on -1002055858151
+User 6417365952 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 6614761931 sends a message(supergroup) on -1002055858151
+User 6614761931 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 5501338761 sends a message(supergroup) on -1002055858151
+User 7166387887 sends a message(supergroup) on -1002055858151
+User 7082771982 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 1192519309 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 1192519309 sends a message(supergroup) on -1002055858151
+User 6840795810 sends a message(supergroup) on -1002055858151
+Update Update(edited_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 16, 47, 16, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 17, 40, 58, tzinfo=<UTC>), from_user=User(first_name='鲸鱼财主', id=6417365952, is_bot=False, username='Caizhu1588'), group_chat_created=False, message_id=933985, message_thread_id=933982, reply_to_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 16, 45, 48, tzinfo=<UTC>), delete_chat_photo=False, from_user=User(first_name='Sprat', id=5726103959, is_bot=False, is_premium=True, language_code='fi', username='Bombosprat'), group_chat_created=False, message_id=933984, message_thread_id=933982, sender_boost_count=4, supergroup_chat_created=False, text='Yes 🫡'), supergroup_chat_created=False, text='Hope the dev here on a long term.'), update_id=21550635) caused an error: 
+ 'NoneType' object has no attribute 'text'
+Update Update(edited_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 16, 48, 20, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 17, 41, tzinfo=<UTC>), from_user=User(first_name='Fatta', id=1629621888, is_bot=False, is_premium=True, language_code='en', username='Bombofatta'), group_chat_created=False, message_id=933986, message_thread_id=933982, reply_to_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 16, 47, 16, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 17, 40, 58, tzinfo=<UTC>), from_user=User(first_name='鲸鱼财主', id=6417365952, is_bot=False, username='Caizhu1588'), group_chat_created=False, message_id=933985, message_thread_id=933982, supergroup_chat_created=False, text='Hope the dev here on a long term.'), sender_boost_count=1, supergroup_chat_created=False, text='Yes🤣'), update_id=21550636) caused an error: 
+ 'NoneType' object has no attribute 'text'
+User 7115031946 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 1192519309 sends a message(supergroup) on -1002055858151
+User 7122889711 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 7122889711 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 6609258549 sends a message(supergroup) on -1002055858151
+User 7377665155 sends a message(supergroup) on -1002055858151
+User 6840795810 sends a message(supergroup) on -1002055858151
+User 6840795810 sends a message(supergroup) on -1002055858151
+User 7531931607 sends a message(supergroup) on -1002055858151
+User 6702531389 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+User 1192519309 sends a message(supergroup) on -1002055858151
+User 1192519309 sends a message(supergroup) on -1002055858151
+User 7088758967 sends a message(supergroup) on -1002055858151
+User 7137059578 Selected: games in chat 7137059578
+User 7137059578 Selected: back-4806 in chat 7137059578
+User 6662625606 sends a message(supergroup) on -1002055858151
+User 6662625606 sends a message(supergroup) on -1002055858151
+User 1224456464 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 7267404526 sends a message(supergroup) on -1002055858151
+User 6105924577 sends a message(supergroup) on -1002055858151
+User 6572337054 sends a message(supergroup) on -1002055858151
+User 1415318585 sends a message(supergroup) on -1002055858151
+User 1415318585 sends a message(supergroup) on -1002055858151
+User 1415318585 sends a message(supergroup) on -1002055858151
+User 1415318585 sends a message(supergroup) on -1002055858151
+User 1415318585 sends a message(supergroup) on -1002055858151
+User 1415318585 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 1415318585 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 6388038930 Selected: withd-1 in chat 6388038930
+User 6388038930 Selected: canaccount-1 in chat 6388038930
+Address: HKXqhbEMpcCx2UUR5f33rj2WzrcVe5taXATakAj6S1ZQ
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+User 7137059578 Selected: account-1 in chat 7137059578
+Address: qczLqUN9wwhe5zEjRkaEQMvvuVnKwWKZG4aZWUwFoQk
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+User 6388038930 Selected: back-1 in chat 6388038930
+User 7137059578 Selected: back-1 in chat 7137059578
+User 6572337054 sends a message(supergroup) on -1002055858151
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 7137059578 Selected: account-1 in chat 7137059578
+Address: qczLqUN9wwhe5zEjRkaEQMvvuVnKwWKZG4aZWUwFoQk
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+Update Update(edited_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 19, 2, 40, tzinfo=<UTC>), delete_chat_photo=False, edit_date=datetime.datetime(2024, 9, 22, 19, 3, 44, tzinfo=<UTC>), from_user=User(first_name='Leo', id=6572337054, is_bot=False, is_premium=True, username='Lordleo07'), group_chat_created=False, message_id=934340, message_thread_id=934313, reply_to_message=Message(channel_chat_created=False, chat=Chat(id=-1002055858151, title='BOMBO', type=<ChatType.SUPERGROUP>), date=datetime.datetime(2024, 9, 22, 19, 0, 58, tzinfo=<UTC>), delete_chat_photo=False, from_user=User(first_name='DRLFZN', id=7496878788, is_bot=False, language_code='de', username='DRLFZN'), group_chat_created=False, message_id=934329, message_thread_id=934313, supergroup_chat_created=False, text='What did he do'), supergroup_chat_created=False, text='They cto senk at 5k and dumped 60% supply on investor  at 1-4m and again he relaunched that shit and bought all the supply 🤐and he reapating same thing'), update_id=21550689) caused an error: 
+ 'NoneType' object has no attribute 'text'
+User 7137059578 Selected: back-1 in chat 7137059578
+User 6572337054 sends a message(supergroup) on -1002055858151
+User 7137059578 Selected: create-new in chat 7137059578
+New duel by user 7137059578
+User 7137059578 sends a message(private) on 7137059578
+status: SETTING
+Stake: 5000
+creating new game
+Public Key: ENBVDaSBCaQoyunVTgMCYMk3TG8doe4f5wNj2dDZe4RP
+Private Key: f28f5811b400555d79489dca2d024e090d6aa71cfe72a65853c95b9350caf49c
+User 7137059578 Selected: abandon-408683 in chat 7137059578
+abandon
+DEPOSIT
+Refound
+User 7496878788 sends a message(supergroup) on -1002055858151
+User 5726103959 sends a message(supergroup) on -1002055858151
+Polling...
+User 7137059578 Selected: account-1 in chat 7137059578
+Address: qczLqUN9wwhe5zEjRkaEQMvvuVnKwWKZG4aZWUwFoQk
+SOL Balance: 0.0 SOL
+BOMBO Balance: 0 $BOMBO
+Update Update(callback_query=CallbackQuery(chat_instance='1738576252784656099', data='account-1', from_user=User(first_name='Drippy', id=7137059578, is_bot=False, language_code='pl', last_name='Henio', username='Dalonga_kohi'), id='2983321368970813023', message=Message(channel_chat_created=False, chat=Chat(first_name='Drippy', id=7137059578, last_name='Henio', type=<ChatType.PRIVATE>, username='Dalonga_kohi'), date=datetime.datetime(2024, 9, 22, 19, 4, 5, tzinfo=<UTC>), delete_chat_photo=False, entities=(MessageEntity(length=33, offset=0, type=<MessageEntityType.BOLD>),), from_user=User(first_name='Gulag', id=7075703461, is_bot=True, username='BomboGulag_Bot'), group_chat_created=False, message_id=4931, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='account-1', text='👤 My Account'), InlineKeyboardButton(callback_data='games', text='⚔️ My Gulags')), (InlineKeyboardButton(callback_data='rules', text='📜 Read Rules of the Game'),), (InlineKeyboardButton(callback_data='create-new', text='🆕 Create new gulag'),))), supergroup_chat_created=False, text="You have canceled gulag creation!\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new gulag or join to an existing gulag.")), update_id=21550697) caused an error: 
+ Query is too old and response timeout expired or query id is invalid
+User 7137059578 Selected: games in chat 7137059578
+Update Update(callback_query=CallbackQuery(chat_instance='1738576252784656099', data='games', from_user=User(first_name='Drippy', id=7137059578, is_bot=False, language_code='pl', last_name='Henio', username='Dalonga_kohi'), id='2983321368625365465', message=Message(channel_chat_created=False, chat=Chat(first_name='Drippy', id=7137059578, last_name='Henio', type=<ChatType.PRIVATE>, username='Dalonga_kohi'), date=datetime.datetime(2024, 9, 22, 19, 4, 5, tzinfo=<UTC>), delete_chat_photo=False, entities=(MessageEntity(length=33, offset=0, type=<MessageEntityType.BOLD>),), from_user=User(first_name='Gulag', id=7075703461, is_bot=True, username='BomboGulag_Bot'), group_chat_created=False, message_id=4931, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='account-1', text='👤 My Account'), InlineKeyboardButton(callback_data='games', text='⚔️ My Gulags')), (InlineKeyboardButton(callback_data='rules', text='📜 Read Rules of the Game'),), (InlineKeyboardButton(callback_data='create-new', text='🆕 Create new gulag'),))), supergroup_chat_created=False, text="You have canceled gulag creation!\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new gulag or join to an existing gulag.")), update_id=21550698) caused an error: 
+ Query is too old and response timeout expired or query id is invalid
+User 7137059578 Selected: create-new in chat 7137059578
+New duel by user 7137059578
+Update Update(callback_query=CallbackQuery(chat_instance='1738576252784656099', data='create-new', from_user=User(first_name='Drippy', id=7137059578, is_bot=False, language_code='pl', last_name='Henio', username='Dalonga_kohi'), id='2983321367650466559', message=Message(channel_chat_created=False, chat=Chat(first_name='Drippy', id=7137059578, last_name='Henio', type=<ChatType.PRIVATE>, username='Dalonga_kohi'), date=datetime.datetime(2024, 9, 22, 19, 4, 5, tzinfo=<UTC>), delete_chat_photo=False, entities=(MessageEntity(length=33, offset=0, type=<MessageEntityType.BOLD>),), from_user=User(first_name='Gulag', id=7075703461, is_bot=True, username='BomboGulag_Bot'), group_chat_created=False, message_id=4931, reply_markup=InlineKeyboardMarkup(inline_keyboard=((InlineKeyboardButton(callback_data='account-1', text='👤 My Account'), InlineKeyboardButton(callback_data='games', text='⚔️ My Gulags')), (InlineKeyboardButton(callback_data='rules', text='📜 Read Rules of the Game'),), (InlineKeyboardButton(callback_data='create-new', text='🆕 Create new gulag'),))), supergroup_chat_created=False, text="You have canceled gulag creation!\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new gulag or join to an existing gulag.")), update_id=21550699) caused an error: 
+ Query is too old and response timeout expired or query id is invalid
