@@ -282,7 +282,8 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, update, co
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await context.bot.send_message(chat_id=chat_id, text=f'Current balance of the deposit address is <strong>{balance} ${TOKEN_NAME}</strong>.\nSadly it is not correct 😞\n\n\nYour deposit address is:\n<code class="monospace-text">{pub_key}</code>\n \n \nSend EXACTLY <b>{stake} ${TOKEN_NAME}</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', parse_mode='HTML', reply_markup=reply_markup)
-        mydb.shutdown()
+        mycursor.close()
+        mydb.close()
 
         return
 
@@ -328,7 +329,8 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, update, co
 
     await context.bot.send_message(chat_id=chat_id, text=f'✅ <strong>Success!</strong>\n\n Your game id is: <code class="monospace-text">{game_id}</code>\n\nYou can share it with your friends and wait for the start', reply_markup=reply_markup, parse_mode='HTML')
     r.delete(user_id)
-    mydb.shutdown()
+    mycursor.close()
+    mydb.close()
 
 
 
@@ -361,7 +363,8 @@ async def show_account(user_id: int, context: ContextTypes.DEFAULT_TYPE):
         val = (user_id, f'{public_key}', f'{private_key.hex()}')
         mycursor.execute(sql, val)
         mydb.commit()
-        mydb.shutdown()
+        mycursor.close()
+        mydb.close()
 
         lost = 0
         won = 0

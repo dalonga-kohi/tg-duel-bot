@@ -37,7 +37,9 @@ async def show_status(game_id: int, context: ContextTypes.DEFAULT_TYPE, chat_id:
     mycursor.execute(f"SELECT p1,p2,p3,p4,p5,stake,status,winner FROM games WHERE game_id='{game_id}'")
     results = mycursor.fetchall()
     count = 0
-    mydb.shutdown()
+
+    mycursor.close()
+    mydb.close()
     if not results:
         await context.bot.send_message(chat_id=chat_id, text=REPLY_NO_STATUS, parse_mode='HTML', reply_markup=reply_markup)
         r.delete(chat_id)
@@ -95,7 +97,8 @@ async def show_games_pending(user_id: int, context: ContextTypes.DEFAULT_TYPE):
 
     mycursor.execute(f"SELECT game_id, stake, p1,p2,p3,p4,p5 FROM games WHERE (status=1 OR status=2) AND (p1='{user_id}' OR p2='{user_id}' OR p3='{user_id}' OR p4='{user_id}' OR p5='{user_id}')")
     results = mycursor.fetchall()
-    mydb.shutdown()
+    mycursor.close()
+    mydb.close()
     if not results:
         await context.bot.sendMessage(chat_id=user_id, text="<b>No gulags found.</b>\n\n\nNo worries, you can choose one of the options below and start playing 🕹️", reply_markup=reply_markup, parse_mode='HTML')
         return
@@ -133,7 +136,8 @@ async def show_games_canceled(user_id: int, context: ContextTypes.DEFAULT_TYPE):
 
     mycursor.execute(f"SELECT game_id, stake, p1,p2,p3,p4,p5 FROM games WHERE (status=4) AND (p1='{user_id}' OR p2='{user_id}' OR p3='{user_id}' OR p4='{user_id}' OR p5='{user_id}')")
     results = mycursor.fetchall()
-    mydb.shutdown()
+    mycursor.close()
+    mydb.close()
     if not results:
         await context.bot.sendMessage(chat_id=user_id, text="<b>No gulags found.</b>\n\n\nNo worries, you can choose one of the options below and start playing 🕹️", reply_markup=reply_markup, parse_mode='HTML')
         return
@@ -165,7 +169,8 @@ async def show_games_won(user_id: int, context: ContextTypes.DEFAULT_TYPE):
 
     mycursor.execute(f"SELECT game_id, stake, p1,p2,p3,p4,p5 FROM games WHERE status=3 AND winner='{user_id}'")
     results = mycursor.fetchall()
-    mydb.shutdown()
+    mycursor.close()
+    mydb.close()
 
     if not results:
         await context.bot.sendMessage(chat_id=user_id, text="<b>No gulags found.</b>\n\n\nNo worries, you can choose one of the options below and start playing 🕹️", reply_markup=reply_markup, parse_mode='HTML')
@@ -198,7 +203,8 @@ async def show_games_lost(user_id: int, context: ContextTypes.DEFAULT_TYPE):
 
     mycursor.execute(f"SELECT game_id, stake, p1,p2,p3,p4,p5, winner FROM games WHERE status=3 AND winner <> '{user_id}' AND (p1='{user_id}' OR p2='{user_id}' OR p3='{user_id}' OR p4='{user_id}' OR p5='{user_id}')")
     results = mycursor.fetchall()
-    mydb.shutdown()
+    mycursor.close()
+    mydb.close()
     if not results:
         await context.bot.sendMessage(chat_id=user_id, text="<b>No gulags found.</b>\n\n\nNo worries, you can choose one of the options below and start playing 🕹️", reply_markup=reply_markup, parse_mode='HTML')
         return

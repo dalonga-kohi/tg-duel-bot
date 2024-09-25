@@ -60,7 +60,8 @@ async def abandon_game(game_id: int, user_id: int, query: CallbackQuery | None, 
 
     mycursor.execute(sql)
     mydb.commit()
-    mydb.shutdown()
+    mycursor.close()
+    mydb.close()
 
     if mycursor.rowcount < 1:
         r.delete(user_id)
@@ -120,7 +121,8 @@ async def stop_join(game_id: int, user_id: int, chat_id: int, context: ContextTy
 
     mycursor.execute(sql)
     mydb.commit()
-    mydb.shutdown()
+    mycursor.close()
+    mydb.close()
 
     r.delete(user_id)
     await context.bot.send_message(chat_id=chat_id, text="<b>You are no longer joining a gulag!</b>\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new gulag or join to an existing gulag.", parse_mode='HTML', reply_markup=reply_markup)
@@ -147,7 +149,8 @@ async def cancel(game_id: int, user_id: int, chat_id: int, context: ContextTypes
             break
 
     if p_num == 0:
-        mydb.shutdown()
+        mycursor.close()
+        mydb.close()
         await context.bot.send_message(chat_id=chat_id, text=REPLY_GAME_END, reply_markup=reply_markup)
         return
 
@@ -158,7 +161,8 @@ async def cancel(game_id: int, user_id: int, chat_id: int, context: ContextTypes
         results = mycursor.fetchall()
         if not results:
             r.delete(user_id)
-            mydb.shutdown()
+            mycursor.close()
+            mydb.close()
             return
 
         for i in range(0,5):
@@ -197,7 +201,8 @@ async def cancel(game_id: int, user_id: int, chat_id: int, context: ContextTypes
             return
 
         r.delete(user_id)
-        mydb.shutdown()
+        mycursor.close()
+        mydb.close()
         await context.bot.send_message(chat_id=chat_id, text=f"<b>You are no longer in the gulag #{game_id}!</b>\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new gulag or join to an existing gulag.", parse_mode='HTML', reply_markup=reply_markup)
 
 
@@ -341,7 +346,8 @@ async def withdraw(address: str, user_id: int) -> str:
     payer = Keypair.from_seed(base58.b58decode(hex_to_base58(PAYER)))
     token = Token(client, bombo_mint_address, TOKEN_PROGRAM_ID, payer)
 
-    mydb.shutdown()
+    mycursor.close()
+    mydb.close()
     try:
         try:
             sender_token_account = token.get_accounts_by_owner(owner=sender_pub_key, commitment=None, encoding='base64').value[0].pubkey
@@ -516,7 +522,8 @@ async def wd_total(address: str, user_id: int) -> str:
         print(f"Transaction Signature: {signature}")
         mycursor.execute(f"UPDATE accounts SET withdraw=0 WHERE user_id='{user_id}'")
         mydb.commit()
-        mydb.shutdown()
+        mycursor.close()
+        mydb.close()
         return f"{signature.value}"
     except Exception as ex:
         print(ex)

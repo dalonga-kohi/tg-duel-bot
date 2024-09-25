@@ -2,7 +2,6 @@ import time
 import base58
 import schedule
 from schedule import every, repeat
-from solana.rpc.types import TokenAccountOpts
 from solana.transaction import Transaction
 from spl.token.constants import TOKEN_PROGRAM_ID
 from solana.rpc.api import Client
@@ -11,7 +10,7 @@ import mysql.connector
 from solders.keypair import Keypair # type: ignore
 from spl.token.instructions import transfer, get_associated_token_address, TransferParams
 from solders.pubkey import Pubkey # type: ignore
-from config import DECIMALS, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, PAYER, VAULT_PRIV, MINT
+from config import DECIMALS, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, PAYER, VAULT_PRIV, MINT, FEE_VAL
 
 bombo_mint_address = Pubkey.from_string(MINT)
 
@@ -117,12 +116,13 @@ def vault():
                 cursor.execute(f"SELECT winner FROM games WHERE game_id={row[2]}")
                 win = cursor.fetchall()
                 win_id = win[0][0]
-                cursor.execute(f'UPDATE accounts SET total=total+{token_balance*0.985}, withdraw=withdraw+{token_balance*0.985} WHERE user_id="{win_id}"')
+                cursor.execute(f'UPDATE accounts SET total=total+{token_balance*FEE_VAL}, withdraw=withdraw+{token_balance*FEE_VAL} WHERE user_id="{win_id}"')
                 mydb.commit()
             else:
-                cursor.execute(f'UPDATE accounts SET withdraw=withdraw+{token_balance*0.985} WHERE user_id="{row[4]}"')
+                cursor.execute(f'UPDATE accounts SET withdraw=withdraw+{token_balance*FEE_VAL} WHERE user_id="{row[4]}"')
                 mydb.commit()
-            mydb.shutdown()
+            cursor.close()
+            mydb.close()
 
 
   #          time.sleep(2)

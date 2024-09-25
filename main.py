@@ -49,6 +49,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     password=MYSQL_PASS,
     database=MYSQL_DB
     )
+    mycursor = mydb.cursor()
+
     if status == 'WD':
         address = unproc
         res = await withdraw(address, user_id)
@@ -82,7 +84,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         else:
             r.delete(user_id)
-            mydb.shutdown()
+            mycursor.close()
+            mydb.close()
             await update.message.reply_text("✅ Successful Transaction")
             await update.message.reply_text(f'Transaction Signature: <code class="monospace-text">{res}</code>', parse_mode="HTML")
             await show_account(user_id, context)
@@ -114,7 +117,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print(f"Public Key: {public_key}")
         print(f"Private Key: {private_key.hex()}")
 
-        mycursor = mydb.cursor()
         sql = "INSERT INTO games (game_id, p1, status, stake) VALUES (%s, %s, %s, %s)"
         val = (game_id, user_id, 9, stake)
         mycursor.execute(sql, val)
@@ -122,8 +124,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         val = (user_id, game_id, f'{public_key}', f'{private_key.hex()}')
         mycursor.execute(sql, val)
         mydb.commit()
-        mydb.shutdown()
-
+        mycursor.close()
+        mydb.close()
         keyboard = [
             [
                 InlineKeyboardButton("💸 Confirm Deposit", callback_data=f'confirm-create-{game_id}'),
@@ -138,7 +140,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     elif status == 'JOINING':
-        mydb.shutdown()
+        mycursor.close()
+        mydb.close()
         try:
             game_id = int(proc)
             print(f'GAME ID: {game_id}')
@@ -154,7 +157,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await join(game_id=game_id, update=update, user_id=user_id, context=context)
 
     elif status == 'STATUS':
-        mydb.shutdown()
+        mycursor.close()
+        mydb.close()
         try:
             game_id = int(proc)
             print(f'GAME ID: {game_id}')
@@ -182,7 +186,8 @@ def create_game_id() -> str:
     mycursor.execute("SELECT game_id FROM games")
 
     myresult = mycursor.fetchall()
-    mydb.shutdown()
+    mycursor.close()
+    mydb.close()
 
     while True:
         id = random.randint(1234,9999999)

@@ -51,7 +51,9 @@ async def send_game_warning(context: ContextTypes.DEFAULT_TYPE) -> None:
     mycursor = mydb.cursor()
     mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status,stake FROM games WHERE game_id={game_id}")
     myresult = mycursor.fetchall()
-    mydb.shutdown()
+
+    mycursor.close()
+    mydb.close()
     if myresult[0][5] == 4:
         return
 
@@ -141,7 +143,8 @@ async def get_players_with_deposit(game_id) -> int:
     mycursor = mydb.cursor()
     mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status FROM games WHERE game_id={game_id}")
     myresult = mycursor.fetchall()
-    mydb.shutdown()
+    mycursor.close()
+    mydb.close()
 
     if not myresult:
         return 0
@@ -183,7 +186,8 @@ async def game_alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
         cursor = mydb.cursor()
         cursor.execute(f"SELECT p1,p2,p3,p4,p5 FROM games WHERE game_id='{game_id}'")
         r = cursor.fetchall()
-        mydb.shutdown()
+        cursor.close()
+        mydb.close()
 
         if not r:
             return
