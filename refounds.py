@@ -18,15 +18,7 @@ from group import send_group_msg
 from group import MsgType
 
 bombo_mint_address = Pubkey.from_string(MINT)
-
-mydb = mysql.connector.connect(
-    host=MYSQL_HOST,
-    user=MYSQL_USER,
-    password=MYSQL_PASS,
-    database=MYSQL_DB
-)
 r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
-mycursor = mydb.cursor()
 
 keyboard = [
     [
@@ -43,6 +35,13 @@ keyboard = [
 reply_markup = InlineKeyboardMarkup(keyboard)
 
 async def abandon_game(game_id: int, user_id: int, query: CallbackQuery | None, chat_id: int, context: ContextTypes.DEFAULT_TYPE):
+    mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+    )
+    mycursor = mydb.cursor()
     p_status = r.get(user_id)
     print(p_status)
     if not p_status:
@@ -61,6 +60,7 @@ async def abandon_game(game_id: int, user_id: int, query: CallbackQuery | None, 
 
     mycursor.execute(sql)
     mydb.commit()
+    mydb.shutdown()
 
     if mycursor.rowcount < 1:
         r.delete(user_id)
@@ -86,7 +86,13 @@ async def abandon_game(game_id: int, user_id: int, query: CallbackQuery | None, 
 
 async def stop_join(game_id: int, user_id: int, chat_id: int, context: ContextTypes.DEFAULT_TYPE):
     p_status = r.get(user_id)
-
+    mydb = mysql.connector.connect(
+        host=MYSQL_HOST,
+        user=MYSQL_USER,
+        password=MYSQL_PASS,
+        database=MYSQL_DB
+    )
+    mycursor = mydb.cursor()
     if not p_status:
         return
     if p_status != 'JOINING' and p_status != 'DEPOSIT':
@@ -114,11 +120,19 @@ async def stop_join(game_id: int, user_id: int, chat_id: int, context: ContextTy
 
     mycursor.execute(sql)
     mydb.commit()
+    mydb.shutdown()
 
     r.delete(user_id)
     await context.bot.send_message(chat_id=chat_id, text="<b>You are no longer joining a gulag!</b>\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new gulag or join to an existing gulag.", parse_mode='HTML', reply_markup=reply_markup)
 
 async def cancel(game_id: int, user_id: int, chat_id: int, context: ContextTypes.DEFAULT_TYPE):
+    mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+    )
+    mycursor = mydb.cursor()
     p_status = r.get(user_id)
     if p_status:
         return
@@ -133,6 +147,7 @@ async def cancel(game_id: int, user_id: int, chat_id: int, context: ContextTypes
             break
 
     if p_num == 0:
+        mydb.shutdown()
         await context.bot.send_message(chat_id=chat_id, text=REPLY_GAME_END, reply_markup=reply_markup)
         return
 
@@ -143,6 +158,7 @@ async def cancel(game_id: int, user_id: int, chat_id: int, context: ContextTypes
         results = mycursor.fetchall()
         if not results:
             r.delete(user_id)
+            mydb.shutdown()
             return
 
         for i in range(0,5):
@@ -170,6 +186,7 @@ async def cancel(game_id: int, user_id: int, chat_id: int, context: ContextTypes
             await context.bot.send_message(chat_id=chat_id, text='Looking for your account details... 🔍')
             await refound(game_id=game_id, user_id=user_id)
         except:
+
             pass
 
         sql = f"UPDATE games SET p{p_num}=NULL where game_id={game_id} AND status = 1 AND p{i}={user_id}"
@@ -180,6 +197,7 @@ async def cancel(game_id: int, user_id: int, chat_id: int, context: ContextTypes
             return
 
         r.delete(user_id)
+        mydb.shutdown()
         await context.bot.send_message(chat_id=chat_id, text=f"<b>You are no longer in the gulag #{game_id}!</b>\n\nIf you have deposited any tokens to the deposit address, you can withdraw them by clicking 'My Account'\n\n\n Don't worry you can still create new gulag or join to an existing gulag.", parse_mode='HTML', reply_markup=reply_markup)
 
 
@@ -295,6 +313,13 @@ def hex_to_base58(hex_string):
     return base58_str.decode("UTF-8")
 
 async def withdraw(address: str, user_id: int) -> str:
+    mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+    )
+    mycursor = mydb.cursor()
     client = Client("https://api.mainnet-beta.solana.com")
     mydb.commit()
     mycursor.execute(f"SELECT pub_key, priv_key FROM accounts WHERE user_id={user_id}")
@@ -316,7 +341,7 @@ async def withdraw(address: str, user_id: int) -> str:
     payer = Keypair.from_seed(base58.b58decode(hex_to_base58(PAYER)))
     token = Token(client, bombo_mint_address, TOKEN_PROGRAM_ID, payer)
 
-
+    mydb.shutdown()
     try:
         try:
             sender_token_account = token.get_accounts_by_owner(owner=sender_pub_key, commitment=None, encoding='base64').value[0].pubkey
@@ -397,6 +422,13 @@ def get_latest_blockhash_with_retries(client):
 
 
 async def wd_total(address: str, user_id: int) -> str:
+    mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+    )
+    mycursor = mydb.cursor()
     client = Client("https://api.mainnet-beta.solana.com")
     mydb.commit()
     mycursor.execute(f"SELECT priv_key FROM config WHERE name='vault'")
@@ -484,7 +516,7 @@ async def wd_total(address: str, user_id: int) -> str:
         print(f"Transaction Signature: {signature}")
         mycursor.execute(f"UPDATE accounts SET withdraw=0 WHERE user_id='{user_id}'")
         mydb.commit()
-
+        mydb.shutdown()
         return f"{signature.value}"
     except Exception as ex:
         print(ex)

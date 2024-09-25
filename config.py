@@ -19,7 +19,7 @@ R_PORT=6379
 MYSQL_HOST='localhost'
 MYSQL_DB='duel_test'
 MYSQL_USER='root'
-MYSQL_PASS='root'
+MYSQL_PASS=''
 
 CMD_START = 'start'
 CMD_DUEL = 'gulag'

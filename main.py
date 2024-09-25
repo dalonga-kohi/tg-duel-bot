@@ -14,12 +14,7 @@ from status import show_status
 
 sol_client = Client("https://api.mainnet-beta.solana.com")
 r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
-mydb = mysql.connector.connect(
-    host=MYSQL_HOST,
-    user=MYSQL_USER,
-    password=MYSQL_PASS,
-    database=MYSQL_DB
-)
+
 
 async def handle_error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f'Update {update} caused an error: \n {context.error}')
@@ -48,7 +43,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ###########################################
     ###########################################
     ###########################################
-
+    mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+    )
     if status == 'WD':
         address = unproc
         res = await withdraw(address, user_id)
@@ -82,6 +82,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         else:
             r.delete(user_id)
+            mydb.shutdown()
             await update.message.reply_text("✅ Successful Transaction")
             await update.message.reply_text(f'Transaction Signature: <code class="monospace-text">{res}</code>', parse_mode="HTML")
             await show_account(user_id, context)
@@ -121,6 +122,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         val = (user_id, game_id, f'{public_key}', f'{private_key.hex()}')
         mycursor.execute(sql, val)
         mydb.commit()
+        mydb.shutdown()
 
         keyboard = [
             [
@@ -136,6 +138,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     elif status == 'JOINING':
+        mydb.shutdown()
         try:
             game_id = int(proc)
             print(f'GAME ID: {game_id}')
@@ -151,6 +154,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await join(game_id=game_id, update=update, user_id=user_id, context=context)
 
     elif status == 'STATUS':
+        mydb.shutdown()
         try:
             game_id = int(proc)
             print(f'GAME ID: {game_id}')
@@ -167,11 +171,19 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def create_game_id() -> str:
+    mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+    )
     mycursor = mydb.cursor()
 
     mycursor.execute("SELECT game_id FROM games")
 
     myresult = mycursor.fetchall()
+    mydb.shutdown()
+
     while True:
         id = random.randint(1234,9999999)
 

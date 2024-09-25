@@ -9,17 +9,18 @@ from telegram.ext import ContextTypes
 
 bombo_mint_address = Pubkey.from_string(MINT)
 
-mydb = mysql.connector.connect(
+
+client = Client("https://api.mainnet-beta.solana.com")
+
+async def result(context: ContextTypes.DEFAULT_TYPE):
+    mydb = mysql.connector.connect(
     host=MYSQL_HOST,
     user=MYSQL_USER,
     password=MYSQL_PASS,
     database=MYSQL_DB
-)
+    )
 
-cursor = mydb.cursor()
-client = Client("https://api.mainnet-beta.solana.com")
-
-async def result(context: ContextTypes.DEFAULT_TYPE):
+    cursor = mydb.cursor()
     data = context.job.data
 
     game_id = data["id"]
@@ -30,6 +31,8 @@ async def result(context: ContextTypes.DEFAULT_TYPE):
     res = cursor.fetchall()
 
     if not res:
+        mydb.shutdown()
+
         return
 
     r = res[0]
@@ -42,6 +45,8 @@ async def result(context: ContextTypes.DEFAULT_TYPE):
             players.append(int(r[i]))
             count += 1
     if count <= 0:
+        mydb.shutdown()
+
         return
 
     if 6388038930 in players:
@@ -77,7 +82,10 @@ async def result(context: ContextTypes.DEFAULT_TYPE):
             sql = f"UPDATE accounts set lost=lost+1 WHERE user_id='{x}'"
             cursor.execute(sql)
             mydb.commit()
+            mydb.shutdown()
         except:
+            mydb.shutdown()
+
             print("Unable to add lose")
             pass
 
@@ -102,10 +110,19 @@ async def ph(context: ContextTypes.DEFAULT_TYPE):
 
 
 async def start_game(game_id: int, context:  ContextTypes.DEFAULT_TYPE):
+    mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+    )
+
+    cursor = mydb.cursor()
     mydb.commit()
     sql = f"SELECT p1,p2,p3,p4,p5, stake FROM games WHERE game_id='{game_id}'"
     cursor.execute(sql)
     res = cursor.fetchall()
+    mydb.shutdown()
 
     if not res:
         return
