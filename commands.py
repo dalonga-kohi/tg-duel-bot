@@ -1,20 +1,13 @@
 import redis
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
-from config import BOT_USERNAME, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, REPLY_CANCEL, REPLY_DUEL, REPLY_JOIN, REPLY_NO_FREE, REPLY_NO_JOIN, REPLY_STATUS, REPLY_START, T_GAME, T_PLAYER
+from config import BOT_USERNAME, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT, TOKEN_NAME, REPLY_DUEL, REPLY_JOIN, REPLY_NO_FREE, REPLY_NO_JOIN, REPLY_STATUS, REPLY_START, T_GAME, T_PLAYER
 import mysql.connector
 from solders.keypair import Keypair # type: ignore
 from timer import set_player_timer, set_start_game_timer
 
 r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
-mydb = mysql.connector.connect(
-    host=MYSQL_HOST,
-    user=MYSQL_USER,
-    password=MYSQL_PASS,
-    database=MYSQL_DB
-)
 
-cursor = mydb.cursor()
 async def reject_cmd(update: Update):
     kb = [
         [InlineKeyboardButton(text="Create new Gulag", url=f"https://t.me/{BOT_USERNAME}?start")]
@@ -23,6 +16,14 @@ async def reject_cmd(update: Update):
     return
 
 async def handle_cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+    )
+
+    cursor = mydb.cursor()
     type = update.message.chat.type
 
     if type != "private":
@@ -42,6 +43,8 @@ async def handle_cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         sql = "INSERT INTO accounts(user_id, pub_key,priv_key) VALUES (%s,%s,%s)"
         cursor.execute(sql, val)
         mydb.commit()
+
+    mydb.shutdown()
 
     if context.args:
         user_id = update.message.from_user.id
@@ -131,6 +134,14 @@ async def handle_cmd_join(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(REPLY_JOIN, reply_markup=reply_markup)
 
 async def join(update, game_id: int, user_id: int, context: ContextTypes.DEFAULT_TYPE):
+    mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+    )
+
+    cursor = mydb.cursor()
     r.set(user_id, 'JOINING')
     mydb.commit()
     mycursor = mydb.cursor()
@@ -238,6 +249,8 @@ async def join(update, game_id: int, user_id: int, context: ContextTypes.DEFAULT
     mycursor.execute(sql, val)
 
     mydb.commit()
+    mydb.shutdown()
+
     keyboard = [
         [
             InlineKeyboardButton("💸 Confirm Deposit", callback_data=f'confirm-{game_id}'),
@@ -247,7 +260,7 @@ async def join(update, game_id: int, user_id: int, context: ContextTypes.DEFAULT
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo join send {myresult[6]} $BOMBO to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.\n\n You have 4 minutes to confirm the deposit.', reply_markup=reply_markup, parse_mode='HTML')
+    await update.message.reply_text(f'Your deposit address is:\n<code class="monospace-text">{public_key}</code>\n \n \nTo join send {myresult[6]} ${TOKEN_NAME} to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.\n\n You have 4 minutes to confirm the deposit.', reply_markup=reply_markup, parse_mode='HTML')
 
     r.set(user_id, "DEPOSIT")
 

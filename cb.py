@@ -1,7 +1,7 @@
 import time
 from telegram import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
-from config import REPLY_DUEL, REPLY_GAME_END, REPLY_START, RULES, T_GAME, MINT, DECIMALS
+from config import REPLY_DUEL, REPLY_GAME_END, REPLY_START, RULES, T_GAME, MINT, DECIMALS, TOKEN_NAME
 from config import MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, R_HOST, R_PORT
 import redis
 from solders.keypair import Keypair # type: ignore
@@ -16,15 +16,16 @@ from refounds import abandon_game, cancel, stop_join, withdraw
 from status import show_games_canceled, show_games_lost, show_games_won, show_status, show_games_pending
 
 bombo_mint_address = Pubkey.from_string(MINT)
-mydb = mysql.connector.connect(
+
+r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
+
+async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    mydb = mysql.connector.connect(
     host=MYSQL_HOST,
     user=MYSQL_USER,
     password=MYSQL_PASS,
     database=MYSQL_DB
-)
-r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
-
-async def button(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    )
     query = update.callback_query
     chat_id = query.message.chat_id
     user_id = query.from_user.id
@@ -185,7 +186,7 @@ def check_balance(pub_key: str) -> float:
                     token_balance = 0
                 token_balance = float(token_balance)/ (10**DECIMALS)
 
-            print(f'BOMBO Balance: {token_balance} $BOMBO')
+            print(f'BOMBO Balance: {token_balance} ${TOKEN_NAME}')
 
             return token_balance
         except:
@@ -200,6 +201,12 @@ def check_balance(pub_key: str) -> float:
 
 async def confirm(user_id: int, query: CallbackQuery | None, chat_id, update, context):
     status = r.get(user_id)
+    mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+    )
 
     if not status:
         await query.answer()
@@ -274,7 +281,9 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, update, co
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        await context.bot.send_message(chat_id=chat_id, text=f'Current balance of the deposit address is <strong>{balance} $BOMBO</strong>.\nSadly it is not correct 😞\n\n\nYour deposit address is:\n<code class="monospace-text">{pub_key}</code>\n \n \nSend EXACTLY <b>{stake} $BOMBO</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', parse_mode='HTML', reply_markup=reply_markup)
+        await context.bot.send_message(chat_id=chat_id, text=f'Current balance of the deposit address is <strong>{balance} ${TOKEN_NAME}</strong>.\nSadly it is not correct 😞\n\n\nYour deposit address is:\n<code class="monospace-text">{pub_key}</code>\n \n \nSend EXACTLY <b>{stake} ${TOKEN_NAME}</b> to this address.\nThen tap <strong>"Confirm Deposit"</strong> to begin.', parse_mode='HTML', reply_markup=reply_markup)
+        mydb.shutdown()
+
         return
 
     keyboard = [
@@ -319,15 +328,21 @@ async def confirm(user_id: int, query: CallbackQuery | None, chat_id, update, co
 
     await context.bot.send_message(chat_id=chat_id, text=f'✅ <strong>Success!</strong>\n\n Your game id is: <code class="monospace-text">{game_id}</code>\n\nYou can share it with your friends and wait for the start', reply_markup=reply_markup, parse_mode='HTML')
     r.delete(user_id)
+    mydb.shutdown()
 
 
 
 async def show_account(user_id: int, context: ContextTypes.DEFAULT_TYPE):
+    mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+    )
     mydb.commit()
     keyboard = [
         [
         InlineKeyboardButton("🏦 Withdraw", callback_data=f'withd-1'),
-        InlineKeyboardButton("🔃 Withdraw Refound", callback_data=f'wd-1'),
         InlineKeyboardButton("🔙 Go back", callback_data=f'back-1'),
         ],
     ]
@@ -346,6 +361,7 @@ async def show_account(user_id: int, context: ContextTypes.DEFAULT_TYPE):
         val = (user_id, f'{public_key}', f'{private_key.hex()}')
         mycursor.execute(sql, val)
         mydb.commit()
+        mydb.shutdown()
 
         lost = 0
         won = 0
@@ -361,6 +377,6 @@ async def show_account(user_id: int, context: ContextTypes.DEFAULT_TYPE):
 
         ref_bal = check_balance(public_key)
 
-    msg = f"🏆 Gulags Won: {won}\t\t 💀 Gulags Lost: {lost}\n\nTotal Prize: {total} $BOMBO\n\nFunds to withdraw: {balance} $BOMBO\n\nFunds on refound account: {ref_bal} $BOMBO"
+    msg = f"🏆 Gulags Won: {won}\t\t 💀 Gulags Lost: {lost}\n\nTotal Prize: {total} ${TOKEN_NAME}\n\nFunds to withdraw: {balance} ${TOKEN_NAME}"
 
     await context.bot.send_message(chat_id=user_id, text=msg, reply_markup=reply_markup)

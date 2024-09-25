@@ -10,12 +10,7 @@ from game import start_game
 from refounds import cancel, stop_join
 
 r = redis.Redis(host=R_HOST, port=R_PORT, db=0, charset="utf-8", decode_responses=True)
-mydb = mysql.connector.connect(
-    host=MYSQL_HOST,
-    user=MYSQL_USER,
-    password=MYSQL_PASS,
-    database=MYSQL_DB
-)
+
 
 async def check_full_players(game_id: str, context) -> None:
     pass
@@ -46,11 +41,17 @@ async def send_game_warning(context: ContextTypes.DEFAULT_TYPE) -> None:
     print(game_id)
 
     players = 0
+    mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+    )
     mydb.commit()
     mycursor = mydb.cursor()
     mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status,stake FROM games WHERE game_id={game_id}")
     myresult = mycursor.fetchall()
-
+    mydb.shutdown()
     if myresult[0][5] == 4:
         return
 
@@ -75,7 +76,12 @@ async def send_game_warning(context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def player_alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     job = context.job
-
+    mydb = mysql.connector.connect(
+        host=MYSQL_HOST,
+        user=MYSQL_USER,
+        password=MYSQL_PASS,
+        database=MYSQL_DB
+    )
     username = job.data["username"]
     user_id = job.data["user_id"]
     game_id = job.name.split("-")[2]
@@ -125,11 +131,18 @@ async def player_alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def get_players_with_deposit(game_id) -> int:
     players = 0
-
+    mydb = mysql.connector.connect(
+        host=MYSQL_HOST,
+        user=MYSQL_USER,
+        password=MYSQL_PASS,
+        database=MYSQL_DB
+    )
     mydb.commit()
     mycursor = mydb.cursor()
     mycursor.execute(f"SELECT p1,p2,p3,p4,p5,status FROM games WHERE game_id={game_id}")
     myresult = mycursor.fetchall()
+    mydb.shutdown()
+
     if not myresult:
         return 0
 
@@ -160,10 +173,18 @@ async def game_alarm(context: ContextTypes.DEFAULT_TYPE) -> None:
     if players >= 2:
         await start_game(game_id, context)
     else:
+        mydb = mysql.connector.connect(
+            host=MYSQL_HOST,
+            user=MYSQL_USER,
+            password=MYSQL_PASS,
+            database=MYSQL_DB
+        )
         mydb.commit()
         cursor = mydb.cursor()
         cursor.execute(f"SELECT p1,p2,p3,p4,p5 FROM games WHERE game_id='{game_id}'")
         r = cursor.fetchall()
+        mydb.shutdown()
+
         if not r:
             return
 

@@ -15,14 +15,7 @@ from config import DECIMALS, MYSQL_DB, MYSQL_HOST, MYSQL_PASS, MYSQL_USER, PAYER
 
 bombo_mint_address = Pubkey.from_string(MINT)
 
-mydb = mysql.connector.connect(
-    host=MYSQL_HOST,
-    user=MYSQL_USER,
-    password=MYSQL_PASS,
-    database=MYSQL_DB
-)
 
-cursor = mydb.cursor()
 client = Client("https://api.mainnet-beta.solana.com")
 
 def hex_to_base58(hex_string):
@@ -32,6 +25,14 @@ def hex_to_base58(hex_string):
 
 @repeat(every(1).minute)
 def vault():
+    mydb = mysql.connector.connect(
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASS,
+    database=MYSQL_DB
+    )
+
+    cursor = mydb.cursor()
     mydb.commit()
     cursor.execute("SELECT pub_key, priv_key, games.game_id, status, user_id FROM wallets JOIN games ON games.game_id=wallets.game_id WHERE wallets.date > ADDDATE(NOW(), INTERVAL -3 DAY) AND (status=3 OR status=4)")
     res = cursor.fetchall()
@@ -84,7 +85,7 @@ def vault():
         except:
             amount = 0
 
-        token_balance = float(amount) /1e9
+        token_balance = float(amount) /(10**DECIMALS)
 #        print(f"Balance: {token_balance}")
         if token_balance <= 0:
             continue
@@ -121,7 +122,7 @@ def vault():
             else:
                 cursor.execute(f'UPDATE accounts SET withdraw=withdraw+{token_balance*0.985} WHERE user_id="{row[4]}"')
                 mydb.commit()
-
+            mydb.shutdown()
 
 
   #          time.sleep(2)
