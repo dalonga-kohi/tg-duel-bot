@@ -31,7 +31,8 @@ async def result(context: ContextTypes.DEFAULT_TYPE):
     res = cursor.fetchall()
 
     if not res:
-        mydb.shutdown()
+        cursor.close()
+        mydb.close()
 
         return
 
@@ -45,7 +46,8 @@ async def result(context: ContextTypes.DEFAULT_TYPE):
             players.append(int(r[i]))
             count += 1
     if count <= 0:
-        mydb.shutdown()
+        cursor.close()
+        mydb.close()
 
         return
 
@@ -82,9 +84,11 @@ async def result(context: ContextTypes.DEFAULT_TYPE):
             sql = f"UPDATE accounts set lost=lost+1 WHERE user_id='{x}'"
             cursor.execute(sql)
             mydb.commit()
-            mydb.shutdown()
+            cursor.close()
+            mydb.close()
         except:
-            mydb.shutdown()
+            cursor.close()
+            mydb.close()
 
             print("Unable to add lose")
             pass
@@ -122,7 +126,8 @@ async def start_game(game_id: int, context:  ContextTypes.DEFAULT_TYPE):
     sql = f"SELECT p1,p2,p3,p4,p5, stake FROM games WHERE game_id='{game_id}'"
     cursor.execute(sql)
     res = cursor.fetchall()
-    mydb.shutdown()
+    cursor.close()
+    mydb.close()
 
     if not res:
         return

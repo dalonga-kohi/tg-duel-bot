@@ -44,7 +44,8 @@ async def handle_cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         cursor.execute(sql, val)
         mydb.commit()
 
-    mydb.shutdown()
+    cursor.close()
+    mydb.close()
 
     if context.args:
         user_id = update.message.from_user.id
@@ -249,7 +250,8 @@ async def join(update, game_id: int, user_id: int, context: ContextTypes.DEFAULT
     mycursor.execute(sql, val)
 
     mydb.commit()
-    mydb.shutdown()
+    cursor.close()
+    mydb.close()
 
     keyboard = [
         [
