@@ -2,10 +2,11 @@ import requests
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from grouptypes import MsgType
-from config import BOT_USERNAME, CHAT_ID, TOKEN
+from config import BOT_USERNAME, CHAT_ID, TOKEN, TOKEN_NAME
+
 
 def MSG_START(stake: int, name: str):
-   return f'The new Gulag by <b>{name}</b> has started with pot of <b>{stake} $BOMBO</b>. <b>Four spots left</b> - hit button below to compete for the pot and the "CHAMPION" title!'
+   return f'The new Gulag by <b>{name}</b> has started with pot of <b>{stake} ${TOKEN_NAME}</b>. <b>Four spots left</b> - hit button below to compete for the pot and the "CHAMPION" title!'
 
 def MSG_BEGIN_TIMER(stake: int, name: str, count: int = 1):
     time = "5 minutes"
@@ -26,16 +27,28 @@ def MSG_BEGIN_TIMER(stake: int, name: str, count: int = 1):
         space = "<b>The Gulag is full.</b>"
         time = "4 minutes"
 
-    return f'<b>{name}</b> has entered the Gulag. <b>Winner takes {count*int(stake)} $BOMBO</b> and the ”CHAMPION” title! <b>{time} left</b> ${space}'
+    return f'<b>{name}</b> has entered the Gulag. <b>Winner takes {count*int(stake)} ${TOKEN_NAME}</b> and the ”CHAMPION” title! <b>{time} left</b> ${space}'
 
 def MSG_GAME(count: int, stake:int):
-    return f"The Gulag begins now with <b>{count} fighters</b> battling for their lives to win a massive <b>{stake*count} $BOMBO</b> stack and take one step closer to upgrading from brokie to TOP G with a ROLEX on their wrist."
+    return f"The Gulag begins now with <b>{count} fighters</b> battling for their lives to win a massive <b>{stake*count} ${TOKEN_NAME}</b> stack and take one step closer to upgrading from brokie to TOP G with a ROLEX on their wrist."
 
 def MSG_RESULT(stake: int, count: int, name: str):
-    return f"Unbelievably, <b>{name}</b> emerged as the Gulag champion, claiming the entire <b>{int(stake)*count} $BOMBO</b> and proving they're ready for a ROLEX and the CHAMPION title — be like {name}."
+    return f"Unbelievably, <b>{name}</b> emerged as the Gulag champion, claiming the entire <b>{int(stake)*count} ${TOKEN_NAME}</b> and proving they're ready for a ROLEX and the CHAMPION title — be like {name}."
 
 def MSG_CANCEL(game_id: int, name: str):
     return f'Unfortunately you all have no balls to risk your life and money. The Gulag #{game_id} has been canceled and all deposits have been returned to players accounts.\n\nIf you feel brave today create new challenge or join to the existing one.'
+
+
+##################
+
+# def MSG_START(stake: int, name: str):
+#    return f'The new Game by <b>{name}</b> has started with pot of <b>{stake} ${TOKEN_NAME}</b>. <b>Four spots left</b> - hit button below to compete for the pot and the "CHAMPION" title!'
+
+# def MSG_GAME(count: int, stake:int):
+#     return f"It's show time! <b>{count} playboys</b> are stepping into Kolt’s high-stakes arena, all gunning for a massive <b>{stake*count} ${TOKEN_NAME}</b> stack. Only the boldest degen will walk away with the bag, while the rest get hustled out of the game. Are you ready to risk it all and claim your spot around the table?"
+
+# def MSG_RESULT(stake: int, count: int, name: str):
+#     return f"Kolt’s top degen just made the ultimate play! Against all odds, <b>{name}</b> took down the competition and secured the entire <b>{stake*count} ${TOKEN_NAME}</b> pot, proving they are a true playboy. Fast cars, a nice watch, and all the ladies — the only limit is how far you're willing to go."
 
 URL_START = "res/start.jpg"
 URL_BEGIN_TIMER = "res/wait.jpg"
@@ -55,12 +68,14 @@ async def send_group_msg(msg_type: MsgType, context: ContextTypes.DEFAULT_TYPE, 
             [InlineKeyboardButton(text="Join to the Gulag", url=f"https://t.me/{BOT_USERNAME}?start={game_id}")]
         ]
     elif msg_type == MsgType.BEGIN_TIMER:
+        #return
         msg = MSG_BEGIN_TIMER(name=username, stake=stake)
         url = URL_BEGIN_TIMER
         kb = [
             [InlineKeyboardButton(text="Join to the Gulag", url=f"https://t.me/{BOT_USERNAME}?start={game_id}")]
         ]
     elif msg_type == MsgType.BEGIN_JOIN:
+        #return
         msg = MSG_BEGIN_TIMER(name=username, stake=stake, count=count)
         if not msg:
             return
@@ -82,6 +97,7 @@ async def send_group_msg(msg_type: MsgType, context: ContextTypes.DEFAULT_TYPE, 
             [InlineKeyboardButton(text="Create new Gulag", url=f"https://t.me/{BOT_USERNAME}?start")]
         ]
     elif msg_type == MsgType.CANCEL:
+        #return
         msg = MSG_CANCEL(game_id=game_id, name=username)
         url = URL_CANCEL
         kb = [
